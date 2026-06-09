@@ -2,7 +2,7 @@ import os
 import base64
 
 # Define paths
-workspace_dir = r"C:\Users\dulla\OneDrive\Desktop\guruvugaru bio"
+workspace_dir = os.path.dirname(os.path.abspath(__file__))
 photos_dir = os.path.join(workspace_dir, "photos_compressed")
 template_path = os.path.join(workspace_dir, "template.html")
 output_path = os.path.join(workspace_dir, "index.html")

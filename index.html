@@ -3259,6 +3259,17 @@
                         <option value="Career & Business Astrology">Career &amp; Business Astrology Advice</option>
                     </select>
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="booking-gotra">Gotra (Optional)</label>
+                        <input type="text" id="booking-gotra" class="form-control" placeholder="Enter Gotra">
+                    </div>
+                    <div class="form-group">
+                        <label for="booking-rashi">Rashi (Optional)</label>
+                        <input type="text" id="booking-rashi" class="form-control" placeholder="Enter Rashi">
+                    </div>
+                </div>
             </div>
 
             <!-- Right Side: Calendar and Slots -->
@@ -3291,13 +3302,13 @@
                 <!-- Slots Grid -->
                 <div class="slots-title">Available Timings (3-Hour Slots)</div>
                 <div class="slots-grid" id="slots-picker-grid">
-                    <button class="slot-btn" data-time="9:00 AM - 12:00 PM">
+                    <button class="slot-btn disabled" disabled>
                         <span>09:00 AM - 12:00 PM</span>
-                        <span class="slot-status">Available</span>
+                        <span class="slot-status">Select Date</span>
                     </button>
-                    <button class="slot-btn" data-time="5:00 PM - 8:00 PM">
+                    <button class="slot-btn disabled" disabled>
                         <span>05:00 PM - 08:00 PM</span>
-                        <span class="slot-status">Available</span>
+                        <span class="slot-status">Select Date</span>
                     </button>
                 </div>
 
@@ -3615,9 +3626,14 @@
         // ==========================================================================
         // Slot Booking & Razorpay Payment Integration Logic
         // ==========================================================================
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : '/api';
+
         let currentYear, currentMonth;
         let selectedDate = null;
         let selectedSlot = null;
+        let selectedSlotId = null;
 
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         
@@ -3645,10 +3661,12 @@
                 renderCalendar(currentYear, currentMonth);
             });
 
-            // Setup slot button click handlers
-            document.querySelectorAll('.slot-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (btn.classList.contains('disabled')) return;
+            // Setup slot button click handlers using delegation for dynamic buttons
+            const pickerGrid = document.getElementById('slots-picker-grid');
+            if (pickerGrid) {
+                pickerGrid.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.slot-btn');
+                    if (!btn || btn.classList.contains('disabled')) return;
                     
                     if (!selectedDate) {
                         alert("Please select a date from the calendar first.");
@@ -3658,8 +3676,9 @@
                     document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     selectedSlot = btn.getAttribute('data-time');
+                    selectedSlotId = parseInt(btn.getAttribute('data-id'), 10);
                 });
-            });
+            }
 
             // Booking Form Confirm & Pay trigger
             document.getElementById('pay-booking-btn').addEventListener('click', handleBookingPayment);
@@ -3667,6 +3686,7 @@
 
         function renderCalendar(year, month) {
             const daysGrid = document.getElementById('calendar-days-grid');
+            if (!daysGrid) return;
             
             // Remove existing days (keep headers, which are the first 7 children)
             const headers = Array.from(daysGrid.children).slice(0, 7);
@@ -3710,7 +3730,12 @@
                         dayCell.classList.add('selected');
                         selectedDate = cellDate;
                         selectedSlot = null; // Reset selected slot
-                        document.querySelectorAll('.slot-btn').forEach(btn => btn.classList.remove('selected'));
+                        selectedSlotId = null;
+                        
+                        // Clear slots list and show loading
+                        const pickerGrid = document.getElementById('slots-picker-grid');
+                        pickerGrid.innerHTML = '<div style="color: var(--gold-light); font-size: 0.9rem; padding: 10px;">Loading available slots...</div>';
+                        
                         updateSlotsAvailability(cellDate);
                     });
                     
@@ -3726,37 +3751,98 @@
             }
         }
 
-        const slotStartHours = {
-            "9:00 AM - 12:00 PM": 9,
-            "5:00 PM - 8:00 PM": 17
-        };
-
-        function updateSlotsAvailability(date) {
-            const today = new Date();
-            const isToday = date.toDateString() === today.toDateString();
-            const currentHour = today.getHours();
-            
-            document.querySelectorAll('.slot-btn').forEach(btn => {
-                const time = btn.getAttribute('data-time');
-                const startHour = slotStartHours[time];
-                
-                if (isToday && startHour <= currentHour) {
-                    btn.classList.add('disabled');
-                    btn.disabled = true;
-                    btn.querySelector('.slot-status').textContent = "Passed";
-                } else {
-                    btn.classList.remove('disabled');
-                    btn.disabled = false;
-                    btn.querySelector('.slot-status').textContent = "Available";
-                }
-            });
+        function formatTime12Hour(timeStr) {
+            const parts = timeStr.split(':');
+            let hours = parseInt(parts[0], 10);
+            const minutes = parts[1];
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${hours}:${minutes} ${ampm}`;
         }
 
-        function handleBookingPayment() {
+        async function updateSlotsAvailability(date) {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            
+            const pickerGrid = document.getElementById('slots-picker-grid');
+            if (!pickerGrid) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/slots?date=${dateStr}`);
+                if (!response.ok) throw new Error("Failed to load slots");
+                const slots = await response.json();
+                
+                pickerGrid.innerHTML = '';
+                
+                if (slots.length === 0) {
+                    pickerGrid.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 10px;">No slots available for this date.</div>';
+                    return;
+                }
+                
+                const today = new Date();
+                const isToday = date.toDateString() === today.toDateString();
+                const currentHour = today.getHours();
+                const currentMinute = today.getMinutes();
+                
+                slots.forEach(slot => {
+                    const startParts = slot.start_time.split(':');
+                    const startHour = parseInt(startParts[0], 10);
+                    const startMin = parseInt(startParts[1], 10);
+                    
+                    const timeLabel = `${formatTime12Hour(slot.start_time)} - ${formatTime12Hour(slot.end_time)}`;
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'slot-btn';
+                    btn.setAttribute('data-time', timeLabel);
+                    btn.setAttribute('data-id', slot.id);
+                    
+                    const spanTime = document.createElement('span');
+                    spanTime.textContent = timeLabel;
+                    btn.appendChild(spanTime);
+                    
+                    const spanStatus = document.createElement('span');
+                    spanStatus.className = 'slot-status';
+                    
+                    let isPassed = false;
+                    if (isToday) {
+                        if (startHour < currentHour || (startHour === currentHour && startMin <= currentMinute)) {
+                            isPassed = true;
+                        }
+                    }
+                    
+                    const bookingsRemaining = slot.max_bookings - slot.current_bookings;
+                    
+                    if (isPassed) {
+                        btn.classList.add('disabled');
+                        btn.disabled = true;
+                        spanStatus.textContent = "Passed";
+                    } else if (!slot.is_available || bookingsRemaining <= 0) {
+                        btn.classList.add('disabled');
+                        btn.disabled = true;
+                        spanStatus.textContent = "Booked";
+                    } else {
+                        spanStatus.textContent = "Available";
+                    }
+                    
+                    btn.appendChild(spanStatus);
+                    pickerGrid.appendChild(btn);
+                });
+            } catch (err) {
+                console.error("Error updating slots:", err);
+                pickerGrid.innerHTML = '<div style="color: #ff4d4d; font-size: 0.9rem; padding: 10px;">Failed to load slots. Please retry.</div>';
+            }
+        }
+
+        async function handleBookingPayment() {
             const name = document.getElementById('booking-name').value.trim();
             const phone = document.getElementById('booking-phone').value.trim();
             const email = document.getElementById('booking-email').value.trim();
             const type = document.getElementById('booking-type').value;
+            const gotra = document.getElementById('booking-gotra') ? document.getElementById('booking-gotra').value.trim() : '';
+            const rashi = document.getElementById('booking-rashi') ? document.getElementById('booking-rashi').value.trim() : '';
 
             if (!name) {
                 alert("Name is mandatory. Please enter your name.");
@@ -3795,39 +3881,131 @@
                 return;
             }
 
-            if (!selectedSlot) {
+            if (!selectedSlotId) {
                 alert("Please select a time slot. Slot selection is mandatory.");
                 return;
             }
 
-            const dateStr = selectedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+            const payBtn = document.getElementById('pay-booking-btn');
+            const originalBtnText = payBtn.textContent;
+            payBtn.textContent = "Processing...";
+            payBtn.disabled = true;
 
-            // Initialize Razorpay checkout
-            const options = {
-                "key": "rzp_test_Vagdevi2026", // Test key (configurable)
-                "amount": "200000", // ₹2000 (in paise subunits)
-                "currency": "INR",
-                "name": "Vagdevi Jyotishalayam",
-                "description": `Consultation: ${type}`,
-                "handler": function (response) {
-                    showBookingSuccessModal(name, dateStr, selectedSlot, type, response.razorpay_payment_id);
-                },
-                "prefill": {
-                    "name": name,
-                    "email": email,
-                    "contact": phone
-                },
-                "theme": {
-                    "color": "#D4AF37"
-                }
-            };
-            
+            const yyyy = selectedDate.getFullYear();
+            const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(selectedDate.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            const displayDateStr = selectedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
             try {
+                // 1. Create booking in pending status
+                const bookingResponse = await fetch(`${API_BASE_URL}/booking`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name: name,
+                        customer_email: email,
+                        customer_phone: phone,
+                        pooja_name: type,
+                        gotra: gotra,
+                        rashi: rashi,
+                        date: dateStr,
+                        slot_id: selectedSlotId
+                    })
+                });
+
+                if (!bookingResponse.ok) {
+                    const errData = await bookingResponse.json();
+                    throw new Error(errData.error || "Failed to initialize booking.");
+                }
+
+                const bookingData = await bookingResponse.json();
+                const bookingId = bookingData.booking_id;
+
+                // 2. Create Razorpay order on backend
+                const orderResponse = await fetch(`${API_BASE_URL}/payment/create-order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ booking_id: bookingId })
+                });
+
+                if (!orderResponse.ok) {
+                    throw new Error("Failed to create payment order.");
+                }
+
+                const orderData = await orderResponse.json();
+
+                // 3. Launch Razorpay Checkout
+                const options = {
+                    "key": orderData.key,
+                    "amount": orderData.amount,
+                    "currency": orderData.currency,
+                    "name": "Vagdevi Jyotishalayam",
+                    "description": `Consultation: ${type}`,
+                    "order_id": orderData.order_id,
+                    "handler": function (response) {
+                        verifyPayment(
+                            response.razorpay_order_id, 
+                            response.razorpay_payment_id, 
+                            response.razorpay_signature, 
+                            bookingId, 
+                            name, 
+                            displayDateStr, 
+                            selectedSlot, 
+                            type
+                        );
+                    },
+                    "prefill": {
+                        "name": name,
+                        "email": email,
+                        "contact": phone
+                    },
+                    "theme": {
+                        "color": "#D4AF37"
+                    },
+                    "modal": {
+                        "ondismiss": function() {
+                            payBtn.textContent = originalBtnText;
+                            payBtn.disabled = false;
+                        }
+                    }
+                };
+
                 const rzp = new Razorpay(options);
                 rzp.open();
+                
             } catch (err) {
-                alert("Razorpay payment modal could not be launched. Please check your internet connection.");
-                console.error("Razorpay error: ", err);
+                alert("Booking Error: " + err.message);
+                payBtn.textContent = originalBtnText;
+                payBtn.disabled = false;
+            }
+        }
+
+        async function verifyPayment(orderId, paymentId, signature, bookingId, name, dateText, slotText, typeText) {
+            const payBtn = document.getElementById('pay-booking-btn');
+            payBtn.textContent = "Verifying payment...";
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/payment/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: orderId,
+                        razorpay_payment_id: paymentId,
+                        razorpay_signature: signature,
+                        booking_id: bookingId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Payment signature verification failed.");
+                }
+
+                showBookingSuccessModal(name, dateText, slotText, typeText, paymentId);
+            } catch (err) {
+                alert("Verification Error: " + err.message);
+                payBtn.textContent = "Confirm & Pay";
+                payBtn.disabled = false;
             }
         }
 
@@ -3847,6 +4025,11 @@
             
             // Activate success modal overlay
             document.getElementById('booking-success-modal').classList.add('active');
+            
+            // Re-enable pay button for next use
+            const payBtn = document.getElementById('pay-booking-btn');
+            payBtn.textContent = "Confirm & Pay";
+            payBtn.disabled = false;
         }
 
         function closeBookingModal() {
@@ -3857,17 +4040,29 @@
             document.getElementById('booking-phone').value = '';
             document.getElementById('booking-email').value = '';
             document.getElementById('booking-type').value = '';
+            if (document.getElementById('booking-gotra')) document.getElementById('booking-gotra').value = '';
+            if (document.getElementById('booking-rashi')) document.getElementById('booking-rashi').value = '';
             
             selectedDate = null;
             selectedSlot = null;
+            selectedSlotId = null;
             
             document.querySelectorAll('.calendar-day').forEach(c => c.classList.remove('selected'));
-            document.querySelectorAll('.slot-btn').forEach(btn => {
-                btn.classList.remove('selected');
-                btn.classList.remove('disabled');
-                btn.disabled = false;
-                btn.querySelector('.slot-status').textContent = "Available";
-            });
+            
+            // Reset slot buttons to initial state
+            const pickerGrid = document.getElementById('slots-picker-grid');
+            if (pickerGrid) {
+                pickerGrid.innerHTML = `
+                    <button class="slot-btn disabled" disabled>
+                        <span>09:00 AM - 12:00 PM</span>
+                        <span class="slot-status">Select Date</span>
+                    </button>
+                    <button class="slot-btn disabled" disabled>
+                        <span>05:00 PM - 08:00 PM</span>
+                        <span class="slot-status">Select Date</span>
+                    </button>
+                `;
+            }
         }
 
 

@@ -1,0 +1,208 @@
+AWSTemplateFormatVersion: '2012-10-17'
+Description: AWS Serverless Infrastructure for Temple/Pooja Booking System (S3, CloudFront, Lambda, API Gateway)
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    Description: Environment name (e.g. dev, prod)
+  DatabaseUrl:
+    Type: String
+    NoEcho: true
+    Description: Neon PostgreSQL connection string
+  RazorpayKeyId:
+    Type: String
+    Description: Razorpay API Key ID
+  RazorpayKeySecret:
+    Type: String
+    NoEcho: true
+    Description: Razorpay API Key Secret
+  JwtSecret:
+    Type: String
+    NoEcho: true
+    Default: temple_booking_jwt_secret_key_2026
+    Description: Secret key for signing JWT tokens
+
+Resources:
+  # 1. Frontend S3 Bucket
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'temple-booking-frontend-${AWS::AccountId}-${Environment}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  # 2. CloudFront Origin Access Control (OAC)
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub 'temple-booking-oac-${Environment}'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # 3. S3 Bucket Policy (Allow CloudFront to access S3)
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  # 4. Lambda Execution IAM Role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # 5. Lambda Backend Function
+  BackendLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'temple-booking-backend-${Environment}'
+      Handler: lambda.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 15
+      MemorySize: 256
+      Code:
+        # Placeholder code, will be uploaded by CI/CD
+        ZipFile: |
+          exports.handler = async (event) => {
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: "Backend Initializing" }),
+            };
+          };
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+          RAZORPAY_KEY_ID: !Ref RazorpayKeyId
+          RAZORPAY_KEY_SECRET: !Ref RazorpayKeySecret
+          JWT_SECRET: !Ref JwtSecret
+
+  # 6. Lambda Log Group (for CloudWatch log retention control)
+  BackendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/temple-booking-backend-${Environment}'
+      RetentionInDays: 7
+
+  # 7. API Gateway HTTP API
+  HttpApiGateway:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub 'temple-booking-api-${Environment}'
+      ProtocolType: HTTP
+
+  # 8. API Gateway Integration with Lambda
+  LambdaIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApiGateway
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt BackendLambdaFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  # 9. API Gateway Default Route (Proxy all requests to Lambda)
+  ProxyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApiGateway
+      RouteKey: 'ANY /{proxy+}'
+      Target: !Sub 'integrations/${LambdaIntegration}'
+
+  # 10. API Gateway Deployment and Stage
+  ApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HttpApiGateway
+      StageName: '$default'
+      AutoDeploy: true
+
+  # 11. Lambda Permission to Allow API Gateway Invocation
+  LambdaPermissionForApiGateway:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BackendLambdaFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApiGateway}/*/*/*'
+
+  # 12. CloudFront Distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_100 # Cheapest (US, Canada, Europe, Hong Kong)
+        Origins:
+          # S3 Frontend Origin
+          - Id: FrontendS3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            OriginAccessControlId: !Ref CloudFrontOAC
+            S3OriginConfig:
+              OriginAccessIdentity: '' # Using OAC instead of OAI
+          # API Gateway Backend Origin
+          - Id: BackendApiGatewayOrigin
+            DomainName: !Sub '${HttpApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        CacheBehaviors:
+          # API route behavior (/api/*)
+          - PathPattern: api/*
+            TargetOriginId: BackendApiGatewayOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            # Forward all headers, cookies and query strings to API Gateway (no CDN cache)
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled policy
+            OriginRequestPolicyId: b689b0a8-53d0-40b8-8a0a-b83d733b8a1d # Managed-AllViewerExceptHostHeader policy
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          CachePolicyId: 65832fea-f20d-4bad-9a60-4314fe822910 # Managed-CachingOptimized policy
+        CustomErrorResponses:
+          # SPA routing support: return index.html for missing files
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 10
+
+Outputs:
+  WebsiteURL:
+    Description: Temple Pooja Booking website CloudFront URL
+    Value: !Sub 'https://${CloudFrontDistribution.DomainName}'
+  ApiGatewayURL:
+    Description: HTTP API Gateway endpoint
+    Value: !Sub 'https://${HttpApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
+  S3BucketName:
+    Description: S3 Bucket Name
+    Value: !Ref FrontendBucket
+  CloudFrontDistributionId:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
