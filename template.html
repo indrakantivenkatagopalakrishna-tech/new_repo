@@ -1080,65 +1080,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Interactive Ambient Vedic Audio Player */
-        #ambient-audio-player {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 18px;
-            border-radius: 40px;
-            cursor: pointer;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            background: rgba(4, 2, 14, 0.85);
-            border: 1px solid var(--gold-primary);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            transition: var(--transition-smooth);
-        }
-
-        #ambient-audio-player:hover {
-            transform: scale(1.05) translateY(-3px);
-            box-shadow: 0 12px 40px rgba(212, 175, 55, 0.25);
-            border-color: var(--gold-light);
-        }
-
-        .audio-wave {
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            height: 15px;
-            width: 20px;
-        }
-
-        .audio-bar {
-            width: 3px;
-            height: 3px;
-            background-color: var(--gold-primary);
-            border-radius: 1px;
-            transition: height 0.3s ease;
-        }
-
-        /* Playing state animation */
-        body.audio-playing .audio-bar {
-            animation: audioBounce 1.2s ease infinite alternate;
-        }
-
-        body.audio-playing .audio-bar:nth-child(1) { animation-delay: 0.1s; }
-        body.audio-playing .audio-bar:nth-child(2) { animation-delay: 0.4s; }
-        body.audio-playing .audio-bar:nth-child(3) { animation-delay: 0.2s; }
-        body.audio-playing .audio-bar:nth-child(4) { animation-delay: 0.5s; }
-
-        .audio-text {
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-starlight);
-        }
 
         /* Lightbox modal */
         #lightbox {
@@ -1405,14 +1346,6 @@
                 width: 75%;
                 max-width: 280px;
             }
-            #ambient-audio-player {
-                bottom: 20px;
-                right: 20px;
-                padding: 10px 15px;
-            }
-            .audio-text {
-                font-size: 0.75rem;
-            }
         }
         @media (max-width: 480px) {
             section {
@@ -1573,10 +1506,6 @@
             }
         }
 
-        @keyframes audioBounce {
-            from { height: 3px; }
-            to { height: 18px; }
-        }
 
         /* Floating animations for Service cards and timeline cards */
         @keyframes float-card-0 { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
@@ -2587,16 +2516,6 @@
     <div id="orbs-container"></div>
     <div id="cursor-glow"></div>
 
-    <!-- Web Audio OM Ambient Controller -->
-    <div id="ambient-audio-player" onclick="toggleDrone()">
-        <div class="audio-wave">
-            <span class="audio-bar"></span>
-            <span class="audio-bar"></span>
-            <span class="audio-bar"></span>
-            <span class="audio-bar"></span>
-        </div>
-        <span class="audio-text" id="audio-play-icon">🔇 Play OM Drone</span>
-    </div>
 
     <!-- Lightbox Modal -->
     <div id="lightbox">
@@ -3606,92 +3525,6 @@
 
 
 
-        // Web Audio OM Synthesizer Drone (Harmonic Richness & LFO Filter Modulation)
-        let audioCtx = null;
-        let droneGain = null;
-        let oscillators = [];
-        let lfo = null;
-
-        function toggleDrone() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                droneGain = audioCtx.createGain();
-                droneGain.gain.setValueAtTime(0, audioCtx.currentTime);
-                
-                // Low-pass filter to keep sound warm but let higher harmonics ring
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(450, audioCtx.currentTime); // Let octave and fifth pass
-                filter.Q.setValueAtTime(1.5, audioCtx.currentTime);
-                
-                // Harmonic Multi-Oscillator structure:
-                // 1. Deep Sub-bass fundamental (68.05 Hz)
-                const oscSub = audioCtx.createOscillator();
-                const gainSub = audioCtx.createGain();
-                oscSub.type = 'sine';
-                oscSub.frequency.setValueAtTime(68.05, audioCtx.currentTime);
-                gainSub.gain.setValueAtTime(0.14, audioCtx.currentTime);
-                
-                // 2. Cosmic OM fundamental (136.1 Hz) - Triangle for rich vocal warmth
-                const oscFund = audioCtx.createOscillator();
-                const gainFund = audioCtx.createGain();
-                oscFund.type = 'triangle';
-                oscFund.frequency.setValueAtTime(136.1, audioCtx.currentTime);
-                gainFund.gain.setValueAtTime(0.10, audioCtx.currentTime);
-                
-                // 3. Resonant Fifth (204.15 Hz) - Sine for harmonic sweetness
-                const oscFifth = audioCtx.createOscillator();
-                const gainFifth = audioCtx.createGain();
-                oscFifth.type = 'sine';
-                oscFifth.frequency.setValueAtTime(204.15, audioCtx.currentTime);
-                gainFifth.gain.setValueAtTime(0.06, audioCtx.currentTime);
-                
-                // 4. Bright Octave (272.2 Hz) - Sine for clarity and definition
-                const oscOctave = audioCtx.createOscillator();
-                const gainOctave = audioCtx.createGain();
-                oscOctave.type = 'sine';
-                oscOctave.frequency.setValueAtTime(272.2, audioCtx.currentTime);
-                gainOctave.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                
-                // Connect oscillators to gains, and gains to filter
-                oscSub.connect(gainSub).connect(filter);
-                oscFund.connect(gainFund).connect(filter);
-                oscFifth.connect(gainFifth).connect(filter);
-                oscOctave.connect(gainOctave).connect(filter);
-                
-                // LFO (Low-Frequency Oscillator) to create a gentle, organic breathing/waving filter sweep
-                lfo = audioCtx.createOscillator();
-                const lfoGain = audioCtx.createGain();
-                lfo.frequency.setValueAtTime(0.15, audioCtx.currentTime); // 0.15Hz (slow breath)
-                lfoGain.gain.setValueAtTime(120, audioCtx.currentTime);    // Sweep range of 120Hz
-                
-                lfo.connect(lfoGain).connect(filter.frequency);
-                
-                filter.connect(droneGain).connect(audioCtx.destination);
-                
-                // Start everything
-                oscSub.start();
-                oscFund.start();
-                oscFifth.start();
-                oscOctave.start();
-                lfo.start();
-                
-                oscillators = [oscSub, oscFund, oscFifth, oscOctave];
-            }
-            
-            const isPlaying = document.body.classList.toggle('audio-playing');
-            const playText = document.getElementById('audio-play-icon');
-            
-            if (isPlaying) {
-                audioCtx.resume();
-                droneGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 2.0); // Smooth fade in
-                playText.textContent = "🔊 OM Drone Active";
-            } else {
-                droneGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5); // Smooth fade out
-                playText.textContent = "🔇 Play OM Drone";
-            }
-        }
 
         // Throttled Parallax Star & Orb Drift on Scroll (High performance on laptops & mobile)
         let isTicking = false;
