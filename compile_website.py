@@ -11,7 +11,7 @@ output_path = os.path.join(workspace_dir, "index.html")
 image_mappings = {
     "{{NEW_MAIN_PORTRAIT}}": "new_main_portrait.jpg",
     "{{ABOUT_PORTRAIT}}": "WhatsApp Image 2026-06-06 at 4.58.56 PM.jpeg",
-    "{{CERT_DOCTORATE}}": "WhatsApp Image 2026-06-06 at 4.08.13 PM.jpeg",
+    "{{CERT_DOCTORATE}}": "WhatsApp Image 2026-06-09 at 6.32.45 PM.jpeg",
     "{{CERT_TELUGU_FELICITATION}}": "WhatsApp Image 2026-06-06 at 4.08.07 PM.jpeg",
     "{{CERT_ANNAVARAM}}": "WhatsApp Image 2026-06-06 at 4.58.49 PM.jpeg",
     "{{CERT_TIRUPATI}}": "WhatsApp Image 2026-06-06 at 4.58.50 PM (1).jpeg",
