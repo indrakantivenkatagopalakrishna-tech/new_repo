@@ -200,6 +200,22 @@
             color: #ff0000 !important;
         }
 
+        /* YouTube Hero Button Styles */
+        .youtube-hero-btn {
+            transition: var(--transition-smooth);
+        }
+        .youtube-hero-btn:hover {
+            background: rgba(255, 0, 0, 0.18) !important;
+            border-color: #ff0000 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        .youtube-hero-btn:hover i {
+            color: #ffffff !important;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
         .hamburger {
             display: none;
             cursor: pointer;
@@ -2741,11 +2757,6 @@
             <li><a href="#booking">Book Slot</a></li>
             <li><a href="#testimonials">Testimonials</a></li>
             <li><a href="#contact">Contact</a></li>
-            <li style="display: flex; align-items: center;">
-                <a href="https://www.youtube.com/@indrakantigopalakrishna" target="_blank" rel="noopener noreferrer" class="youtube-nav-link" aria-label="YouTube Channel" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); transition: var(--transition-smooth); padding: 0;">
-                    <i class="fab fa-youtube" style="font-size: 1.1rem; color: var(--gold-primary); transition: var(--transition-smooth); padding: 0; line-height: 1;"></i>
-                </a>
-            </li>
         </ul>
     </nav>
 
@@ -2783,7 +2794,13 @@
                 </div>
             </div>
             <div class="hero-right">
-                <div class="eyebrow-pill">✦ Vedic Scholar · Spiritual Guide</div>
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <div class="eyebrow-pill" style="margin-bottom: 0;">✦ Vedic Scholar · Spiritual Guide</div>
+                    <a href="https://www.youtube.com/@indrakantigopalakrishna" target="_blank" rel="noopener noreferrer" class="youtube-hero-btn" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 0, 0, 0.08); border: 1px solid rgba(255, 0, 0, 0.3); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; letter-spacing: 1px; font-weight: 600; color: #ff3333; text-decoration: none; text-transform: uppercase; transition: var(--transition-smooth); cursor: pointer;">
+                        <i class="fab fa-youtube" style="font-size: 1.05rem; color: #ff0000; transition: var(--transition-smooth);"></i>
+                        <span>YouTube Channel</span>
+                    </a>
+                </div>
                 <div class="hero-name">
                     <h1 style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                         Brahmasri 
