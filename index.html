@@ -2703,6 +2703,14 @@
             text-shadow: 0 0 10px rgba(240, 208, 96, 0.5);
         }
 
+        .delete-review-btn {
+            transition: var(--transition-smooth);
+        }
+        .delete-review-btn:hover {
+            color: #ff0000 !important;
+            transform: scale(1.18);
+        }
+
         /* Toast notification styling */
         .toast-notification {
             position: fixed;
@@ -3356,6 +3364,11 @@
 
         <div class="reveal" style="text-align: center; margin-top: 50px;">
             <button class="btn btn-gold btn-large" onclick="openFeedbackModal()">Share Your Feedback</button>
+        </div>
+        
+        <!-- Hidden Admin Access Key for moderation -->
+        <div style="position: absolute; bottom: 15px; right: 15px; opacity: 0.15; cursor: pointer; transition: var(--transition-smooth); z-index: 5;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=0.15" onclick="enterAdminMode()" title="Admin Moderation">
+            <i class="fas fa-lock" style="font-size: 0.95rem; color: var(--gold-light);"></i>
         </div>
     </section>
 
@@ -4019,35 +4032,102 @@
         // Default hardcoded testimonials
         const defaultTestimonials = [
             {
+                id: "default_1",
                 name: "K. Ramachandra Rao",
                 type: "Vastu Consultation",
                 rating: 5,
                 comments: "Brahmasri Gopalakrishna Garu provided precise Vastu suggestions for our new residence in Hyderabad. The recommendations were practical and brought immense peace and harmony to our household.",
-                date: "12 May 2026"
+                date: "12 May 2026",
+                timestamp: 1778648400000
             },
             {
+                id: "default_2",
                 name: "Dr. A. Srinivas",
                 type: "Astrology Reading",
                 rating: 5,
                 comments: "The horoscope analysis was incredibly detailed and accurate. The timing of events predicted by Swamy was exact. His guidance helped me take crucial decisions in my career with confidence.",
-                date: "28 Apr 2026"
+                date: "28 Apr 2026",
+                timestamp: 1777438800000
             },
             {
+                id: "default_3",
                 name: "P. Vasundhara",
                 type: "Muhurtham Selection",
                 rating: 5,
                 comments: "We consulted Garu for our daughter's wedding muhurtham and horoscope matching. His deep knowledge and compassionate explanation of the compatibility cleared all our doubts. Extremely blessed.",
-                date: "02 Jun 2026"
+                date: "02 Jun 2026",
+                timestamp: 1780462800000
             }
         ];
+
+        let isAdmin = false;
+
+        function enterAdminMode() {
+            const pin = prompt("Enter Admin PIN to manage feedback:");
+            if (pin === "9247") {
+                isAdmin = true;
+                showToast("Admin Mode Active. You can now delete feedbacks.");
+                loadTestimonials();
+            } else if (pin !== null) {
+                alert("Incorrect PIN.");
+            }
+        }
+
+        function deleteReview(id, timestamp) {
+            if (!confirm("Are you sure you want to delete this feedback?")) return;
+
+            // 1. If it's a default review (starts with "default_"), store it in deleted defaults
+            if (id && id.startsWith("default_")) {
+                try {
+                    let deletedDefaults = JSON.parse(localStorage.getItem('deleted_default_testimonials') || '[]');
+                    if (!deletedDefaults.includes(id)) {
+                        deletedDefaults.push(id);
+                        localStorage.setItem('deleted_default_testimonials', JSON.stringify(deletedDefaults));
+                    }
+                    showToast("Default feedback hidden successfully.");
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                // 2. Delete from Firestore if exists
+                if (firestoreDb && id) {
+                    firestoreDb.collection("feedbacks").doc(id).delete()
+                        .then(() => {
+                            console.log("Deleted from Firestore database.");
+                        })
+                        .catch(err => {
+                            console.error("Firestore delete failed:", err);
+                        });
+                }
+                
+                // 3. Delete from LocalStorage
+                try {
+                    let localList = getLocalReviews();
+                    localList = localList.filter(fb => fb.timestamp !== timestamp);
+                    localStorage.setItem('jyotish_feedbacks', JSON.stringify(localList));
+                    showToast("Feedback deleted successfully.");
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // Reload reviews
+            loadTestimonials();
+        }
 
         // Load and render testimonials
         function loadTestimonials() {
             const container = document.getElementById('testimonials-container');
             if (!container) return;
 
-            // 1. Start with default testimonials
-            let list = [...defaultTestimonials];
+            // 1. Get hidden default reviews list
+            let deletedDefaults = [];
+            try {
+                deletedDefaults = JSON.parse(localStorage.getItem('deleted_default_testimonials') || '[]');
+            } catch (e) {}
+
+            // Filter out deleted defaults
+            let list = defaultTestimonials.filter(fb => !deletedDefaults.includes(fb.id));
 
             // 2. Try to get reviews from Firestore or LocalStorage
             if (firestoreDb) {
@@ -4055,7 +4135,9 @@
                     .then(querySnapshot => {
                         let dbList = [];
                         querySnapshot.forEach(doc => {
-                            dbList.push(doc.data());
+                            let data = doc.data();
+                            data.id = doc.id; // Map document ID
+                            dbList.push(data);
                         });
                         renderReviewsList(list.concat(dbList));
                     })
@@ -4113,6 +4195,7 @@
 
                 const cardHtml = `
                     <div class="testimonial-card">
+                        ${isAdmin ? `<span class="delete-review-btn" onclick="deleteReview('${fb.id || ''}', ${fb.timestamp})" title="Delete Feedback" style="position: absolute; top: 15px; right: 15px; cursor: pointer; color: #ff3333; font-size: 1.1rem; transition: var(--transition-smooth); z-index: 10;"><i class="fas fa-trash-alt"></i></span>` : ''}
                         <div>
                             <div class="testimonial-header">
                                 <div class="testimonial-avatar">${initials}</div>
