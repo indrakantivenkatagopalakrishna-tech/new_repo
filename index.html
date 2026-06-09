@@ -216,6 +216,31 @@
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
         }
 
+        /* Facebook Button Styles */
+        .facebook-hero-btn {
+            transition: var(--transition-smooth);
+        }
+        .facebook-hero-btn:hover {
+            background: rgba(24, 119, 242, 0.18) !important;
+            border-color: #1877F2 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 15px rgba(24, 119, 242, 0.4);
+            transform: translateY(-2px);
+        }
+        .facebook-hero-btn:hover i {
+            color: #ffffff !important;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+        .facebook-footer-link:hover {
+            background: rgba(24, 119, 242, 0.15) !important;
+            border-color: #1877F2 !important;
+            box-shadow: 0 0 12px rgba(24, 119, 242, 0.5);
+            transform: scale(1.08) translateY(-2px);
+        }
+        .facebook-footer-link:hover i {
+            color: #1877F2 !important;
+        }
+
         .hamburger {
             display: none;
             cursor: pointer;
@@ -2802,6 +2827,10 @@
                         <i class="fab fa-youtube" style="font-size: 1.05rem; color: #ff0000; transition: var(--transition-smooth);"></i>
                         <span>YouTube Channel</span>
                     </a>
+                    <a href="https://www.facebook.com/www.gopalakrishna.indrakanti.in" target="_blank" rel="noopener noreferrer" class="facebook-hero-btn" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(24, 119, 242, 0.08); border: 1px solid rgba(24, 119, 242, 0.3); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; letter-spacing: 1px; font-weight: 600; color: #4b88ff; text-decoration: none; text-transform: uppercase; transition: var(--transition-smooth); cursor: pointer;">
+                        <i class="fab fa-facebook-f" style="font-size: 1.05rem; color: #1877F2; transition: var(--transition-smooth);"></i>
+                        <span>Facebook</span>
+                    </a>
                 </div>
                 <div class="hero-name">
                     <h1 style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -3432,6 +3461,9 @@
         <div class="footer-social-links" style="margin-top: 15px; display: flex; justify-content: center; gap: 15px;">
             <a href="https://www.youtube.com/@indrakantigopalakrishna" target="_blank" rel="noopener noreferrer" class="youtube-footer-link" aria-label="YouTube Channel" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); transition: var(--transition-smooth);">
                 <i class="fab fa-youtube" style="font-size: 1.3rem; color: var(--gold-primary); transition: var(--transition-smooth);"></i>
+            </a>
+            <a href="https://www.facebook.com/www.gopalakrishna.indrakanti.in" target="_blank" rel="noopener noreferrer" class="facebook-footer-link" aria-label="Facebook Profile" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); transition: var(--transition-smooth);">
+                <i class="fab fa-facebook-f" style="font-size: 1.3rem; color: var(--gold-primary); transition: var(--transition-smooth);"></i>
             </a>
         </div>
         <div class="star-separator"></div>
