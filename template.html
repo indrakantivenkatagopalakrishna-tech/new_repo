@@ -148,14 +148,14 @@
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 1rem;
             list-style: none;
         }
 
         .nav-links a {
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 500;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             padding: 5px 0;
             position: relative;
@@ -1407,7 +1407,7 @@
             }
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             nav {
                 padding: 15px 6%;
             }
@@ -1448,7 +1448,9 @@
             .hamburger.active span:nth-child(3) {
                 transform: translateY(-8px) rotate(-45deg);
             }
+        }
 
+        @media (max-width: 768px) {
             .rashi-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
