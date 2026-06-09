@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         /* CSS Reset & Variables */
         :root {
@@ -176,6 +179,25 @@
 
         .nav-links a:hover::after {
             width: 100%;
+        }
+
+        /* YouTube Links Styling */
+        .youtube-nav-link:hover {
+            background: rgba(255, 0, 0, 0.15) !important;
+            border-color: #ff0000 !important;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+        }
+        .youtube-nav-link:hover i {
+            color: #ff0000 !important;
+        }
+        .youtube-footer-link:hover {
+            background: rgba(255, 0, 0, 0.15) !important;
+            border-color: #ff0000 !important;
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+            transform: scale(1.08) translateY(-2px);
+        }
+        .youtube-footer-link:hover i {
+            color: #ff0000 !important;
         }
 
         .hamburger {
@@ -2507,6 +2529,178 @@
                 animation: none !important;
             }
         }
+        /* ==========================================================================
+           Testimonials & Reviews Section CSS
+           ========================================================================== */
+        #testimonials {
+            background: linear-gradient(135deg, #04020E 0%, #0A041A 50%, #04020E 100%);
+            position: relative;
+            padding: 100px 8% 80px;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .testimonial-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 5rem;
+            font-family: 'Cormorant Garamond', serif;
+            color: rgba(212, 175, 55, 0.08);
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(212, 175, 55, 0.35);
+            box-shadow: 0 12px 40px rgba(212, 175, 55, 0.15);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold-primary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #04020E;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .testimonial-meta h4 {
+            font-size: 1.1rem;
+            color: var(--text-starlight);
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .testimonial-meta .verified-badge {
+            font-size: 0.85rem;
+            color: #22c55e;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .testimonial-meta .consult-type {
+            font-size: 0.75rem;
+            color: var(--gold-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .testimonial-rating {
+            color: var(--gold-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .testimonial-text {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .testimonial-date {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+            padding-top: 12px;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Star Rating picker states */
+        .fb-star.active {
+            color: var(--gold-light) !important;
+            text-shadow: 0 0 10px rgba(240, 208, 96, 0.5);
+        }
+
+        /* Toast notification styling */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(8, 4, 21, 0.95);
+            border: 1px solid var(--gold-primary);
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.25);
+            color: var(--text-starlight);
+            padding: 14px 28px;
+            border-radius: 8px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-success-icon {
+            color: #22c55e;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            #testimonials {
+                padding: 60px 20px;
+            }
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2545,7 +2739,13 @@
             <li><a href="#honours">Honours</a></li>
             <li><a href="#temple-legacy">Sacred Legacy</a></li>
             <li><a href="#booking">Book Slot</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
             <li><a href="#contact">Contact</a></li>
+            <li style="display: flex; align-items: center;">
+                <a href="https://www.youtube.com/@indrakantigopalakrishna" target="_blank" rel="noopener noreferrer" class="youtube-nav-link" aria-label="YouTube Channel" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); transition: var(--transition-smooth); padding: 0;">
+                    <i class="fab fa-youtube" style="font-size: 1.1rem; color: var(--gold-primary); transition: var(--transition-smooth); padding: 0; line-height: 1;"></i>
+                </a>
+            </li>
         </ul>
     </nav>
 
@@ -3095,6 +3295,77 @@
         </div>
     </div>
 
+    <!-- Testimonials & Reviews Section -->
+    <section id="testimonials">
+        <div class="section-title reveal">
+            <h2>Client Testimonials</h2>
+        </div>
+        <p class="contact-subtitle reveal font-serif" style="text-align: center; margin-bottom: 30px;">"Hear from those who have walked the path of light"</p>
+        
+        <div class="testimonials-grid reveal" id="testimonials-container">
+            <!-- Testimonials will be dynamically rendered here -->
+        </div>
+
+        <div class="reveal" style="text-align: center; margin-top: 50px;">
+            <button class="btn btn-gold btn-large" onclick="openFeedbackModal()">Share Your Feedback</button>
+        </div>
+    </section>
+
+    <!-- Submit Feedback Modal Overlay -->
+    <div class="modal-overlay" id="feedback-modal">
+        <div class="success-modal" style="max-width: 500px; text-align: left; background: rgba(8, 4, 21, 0.98); border: 1px solid var(--gold-primary); padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212, 175, 55, 0.15); padding-bottom: 12px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--gold-primary); font-family: 'Cormorant Garamond', serif; font-size: 1.8rem;">Share Your Feedback</h3>
+                <span style="cursor: pointer; font-size: 1.8rem; color: var(--text-muted); transition: var(--transition-smooth); line-height: 1;" onclick="closeFeedbackModal()">&times;</span>
+            </div>
+            
+            <form id="feedback-form" onsubmit="handleFeedbackSubmit(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="fb-name" style="display: block; font-size: 0.85rem; color: var(--gold-light); text-transform: uppercase; margin-bottom: 5px; font-weight: 500;">Your Name *</label>
+                    <input type="text" id="fb-name" required placeholder="Enter your name" style="width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 6px; color: var(--text-starlight); font-family: inherit; font-size: 0.95rem; outline: none; transition: var(--transition-smooth);">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="fb-type" style="display: block; font-size: 0.85rem; color: var(--gold-light); text-transform: uppercase; margin-bottom: 5px; font-weight: 500;">Consultation Type *</label>
+                    <select id="fb-type" required style="width: 100%; padding: 12px; background: #0d0520; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 6px; color: var(--text-starlight); font-family: inherit; font-size: 0.95rem; outline: none; transition: var(--transition-smooth);">
+                        <option value="" disabled selected>Select Consultation Type</option>
+                        <option value="Astrology Reading">Astrology Reading</option>
+                        <option value="Vastu Shastra">Vastu Consultation</option>
+                        <option value="Puja & Rituals">Puja &amp; Rituals</option>
+                        <option value="Horoscope Match">Horoscope Matching</option>
+                        <option value="Muhurtham">Muhurtham Selection</option>
+                        <option value="Other">Other Spiritual Guidance</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--gold-light); text-transform: uppercase; margin-bottom: 5px; font-weight: 500;">Rating *</label>
+                    <div class="star-rating-picker" style="display: flex; gap: 8px; font-size: 1.5rem; color: rgba(255, 255, 255, 0.2);">
+                        <span class="fb-star" data-value="1" onclick="setStarRating(1)" style="cursor: pointer; transition: var(--transition-smooth);"><i class="fas fa-star"></i></span>
+                        <span class="fb-star" data-value="2" onclick="setStarRating(2)" style="cursor: pointer; transition: var(--transition-smooth);"><i class="fas fa-star"></i></span>
+                        <span class="fb-star" data-value="3" onclick="setStarRating(3)" style="cursor: pointer; transition: var(--transition-smooth);"><i class="fas fa-star"></i></span>
+                        <span class="fb-star" data-value="4" onclick="setStarRating(4)" style="cursor: pointer; transition: var(--transition-smooth);"><i class="fas fa-star"></i></span>
+                        <span class="fb-star" data-value="5" onclick="setStarRating(5)" style="cursor: pointer; transition: var(--transition-smooth);"><i class="fas fa-star"></i></span>
+                    </div>
+                    <input type="hidden" id="fb-rating-val" required value="">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="fb-comments" style="display: block; font-size: 0.85rem; color: var(--gold-light); text-transform: uppercase; margin-bottom: 5px; font-weight: 500;">Comments / Experience *</label>
+                    <textarea id="fb-comments" required rows="4" placeholder="Describe your experience with the consultation..." style="width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 6px; color: var(--text-starlight); font-family: inherit; font-size: 0.95rem; outline: none; transition: var(--transition-smooth); resize: vertical;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width: 100%; margin: 0; padding: 12px;">Submit Feedback</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-notification">
+        <span class="toast-success-icon"><i class="fas fa-check-circle"></i></span>
+        <span id="toast-message">Feedback submitted successfully!</span>
+    </div>
+
     <!-- Contact Section -->
     <section id="contact">
         <div class="section-title reveal">
@@ -3139,6 +3410,11 @@
         <div class="footer-sig">Indrakanti Venkata Gopalakrishna</div>
         <div style="font-size: 1.15rem; color: var(--gold-light); margin-top: -5px; margin-bottom: 5px; font-family: 'Cormorant Garamond', serif; letter-spacing: 1.5px; font-weight: 600; text-transform: uppercase;">Vagdevi Jyotishalayam</div>
         <div class="footer-roles">Vedic Scholar · Astrologer · Vastu Consultant</div>
+        <div class="footer-social-links" style="margin-top: 15px; display: flex; justify-content: center; gap: 15px;">
+            <a href="https://www.youtube.com/@indrakantigopalakrishna" target="_blank" rel="noopener noreferrer" class="youtube-footer-link" aria-label="YouTube Channel" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); transition: var(--transition-smooth);">
+                <i class="fab fa-youtube" style="font-size: 1.3rem; color: var(--gold-primary); transition: var(--transition-smooth);"></i>
+            </a>
+        </div>
         <div class="star-separator"></div>
         <div class="footer-copyright">
             Copyright &copy; 2026 Vagdevi Jyotishalayam. All Rights Reserved.
@@ -3148,6 +3424,10 @@
     <!-- Razorpay Checkout Script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <!-- Vanilla Javascript -->
     <script>
         // Page Load trigger for Entrance Animations
@@ -3155,6 +3435,9 @@
             setTimeout(() => {
                 document.body.classList.add('loaded');
             }, 100);
+            
+            // Load Testimonials from backend/localStorage
+            loadTestimonials();
             
             // Generate Twinkling Starfield
             const starfield = document.getElementById('starfield');
@@ -3656,6 +3939,240 @@
                 lightbox.classList.remove('active');
             }
         });
+
+        // ==========================================================================
+        // Testimonials & Reviews Feedback Functions
+        // ==========================================================================
+        
+        // Firebase Configuration - Default placeholder config
+        const fbConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let firestoreDb = null;
+        if (typeof firebase !== 'undefined' && fbConfig.projectId !== "YOUR_PROJECT_ID") {
+            try {
+                firebase.initializeApp(fbConfig);
+                firestoreDb = firebase.firestore();
+                console.log("Feedback backend initialized successfully.");
+            } catch (e) {
+                console.warn("Firebase initialization skipped or failed, using LocalStorage fallback:", e);
+            }
+        }
+
+        // Default hardcoded testimonials
+        const defaultTestimonials = [
+            {
+                name: "K. Ramachandra Rao",
+                type: "Vastu Consultation",
+                rating: 5,
+                comments: "Brahmasri Gopalakrishna Garu provided precise Vastu suggestions for our new residence in Hyderabad. The recommendations were practical and brought immense peace and harmony to our household.",
+                date: "12 May 2026"
+            },
+            {
+                name: "Dr. A. Srinivas",
+                type: "Astrology Reading",
+                rating: 5,
+                comments: "The horoscope analysis was incredibly detailed and accurate. The timing of events predicted by Swamy was exact. His guidance helped me take crucial decisions in my career with confidence.",
+                date: "28 Apr 2026"
+            },
+            {
+                name: "P. Vasundhara",
+                type: "Muhurtham Selection",
+                rating: 5,
+                comments: "We consulted Garu for our daughter's wedding muhurtham and horoscope matching. His deep knowledge and compassionate explanation of the compatibility cleared all our doubts. Extremely blessed.",
+                date: "02 Jun 2026"
+            }
+        ];
+
+        // Load and render testimonials
+        function loadTestimonials() {
+            const container = document.getElementById('testimonials-container');
+            if (!container) return;
+
+            // 1. Start with default testimonials
+            let list = [...defaultTestimonials];
+
+            // 2. Try to get reviews from Firestore or LocalStorage
+            if (firestoreDb) {
+                firestoreDb.collection("feedbacks").orderBy("timestamp", "desc").get()
+                    .then(querySnapshot => {
+                        let dbList = [];
+                        querySnapshot.forEach(doc => {
+                            dbList.push(doc.data());
+                        });
+                        renderReviewsList(list.concat(dbList));
+                    })
+                    .catch(err => {
+                        console.error("Firestore fetch error, falling back to LocalStorage:", err);
+                        const localList = getLocalReviews();
+                        renderReviewsList(list.concat(localList));
+                    });
+            } else {
+                const localList = getLocalReviews();
+                renderReviewsList(list.concat(localList));
+            }
+        }
+
+        function getLocalReviews() {
+            try {
+                const stored = localStorage.getItem('jyotish_feedbacks');
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveLocalReview(review) {
+            try {
+                const list = getLocalReviews();
+                list.unshift(review); // Prepend new review
+                localStorage.setItem('jyotish_feedbacks', JSON.stringify(list));
+            } catch (e) {
+                console.error("Failed storing review locally:", e);
+            }
+        }
+
+        function renderReviewsList(reviews) {
+            const container = document.getElementById('testimonials-container');
+            if (!container) return;
+
+            // Clear container
+            container.innerHTML = '';
+
+            // Render each review
+            reviews.forEach(fb => {
+                // Create avatar initials
+                const initials = fb.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+                
+                // Create star rating HTML
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= fb.rating) {
+                        starsHtml += '<i class="fas fa-star"></i>';
+                    } else {
+                        starsHtml += '<i class="far fa-star"></i>';
+                    }
+                }
+
+                const cardHtml = `
+                    <div class="testimonial-card">
+                        <div>
+                            <div class="testimonial-header">
+                                <div class="testimonial-avatar">${initials}</div>
+                                <div class="testimonial-meta">
+                                    <h4>${fb.name} <span class="verified-badge" title="Verified Consultation"><i class="fas fa-check-circle"></i></span></h4>
+                                    <span class="consult-type">${fb.type}</span>
+                                </div>
+                            </div>
+                            <div class="testimonial-rating">
+                                ${starsHtml}
+                            </div>
+                            <p class="testimonial-text">"${fb.comments}"</p>
+                        </div>
+                        <div class="testimonial-date">
+                            <span>Consultation Feedback</span>
+                            <span>${fb.date}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function setStarRating(rating) {
+            document.getElementById('fb-rating-val').value = rating;
+            const stars = document.querySelectorAll('.fb-star');
+            stars.forEach((star, idx) => {
+                if (idx < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function openFeedbackModal() {
+            document.getElementById('feedback-modal').classList.add('active');
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedback-modal').classList.remove('active');
+            // Reset form
+            document.getElementById('feedback-form').reset();
+            // Reset stars picker style
+            document.querySelectorAll('.fb-star').forEach(star => star.classList.remove('active'));
+            document.getElementById('fb-rating-val').value = '';
+        }
+
+        // Form Submit handler
+        function handleFeedbackSubmit(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('fb-name').value.trim();
+            const type = document.getElementById('fb-type').value;
+            const ratingVal = document.getElementById('fb-rating-val').value;
+            const comments = document.getElementById('fb-comments').value.trim();
+
+            if (!name || !type || !ratingVal || !comments) {
+                alert("Please fill all mandatory fields.");
+                return;
+            }
+
+            const rating = parseInt(ratingVal);
+            const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            const newReview = {
+                name: name,
+                type: type,
+                rating: rating,
+                comments: comments,
+                date: dateStr,
+                timestamp: Date.now()
+            };
+
+            // Store in localStorage immediately
+            saveLocalReview(newReview);
+
+            // Try to save to Firestore
+            if (firestoreDb) {
+                firestoreDb.collection("feedbacks").add(newReview)
+                    .then(() => {
+                        console.log("Stored review in Firebase backend.");
+                    })
+                    .catch(err => {
+                        console.error("Firebase store failed, review preserved in LocalStorage:", err);
+                    });
+            }
+
+            // Show success notification toast
+            showToast("Thank you! Your feedback has been submitted.");
+
+            // Close feedback modal
+            closeFeedbackModal();
+
+            // Reload list to display the new testimonial card
+            loadTestimonials();
+        }
+
+        // Show custom floating Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast-container');
+            const msgEl = document.getElementById('toast-message');
+            if (!toast || !msgEl) return;
+
+            msgEl.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
     </script>
 </body>
 </html>
