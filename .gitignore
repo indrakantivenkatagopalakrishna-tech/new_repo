@@ -1,0 +1,10 @@
+# Python temp files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS files
+Thumbs.db
+.DS_Store
+.directory
+Desktop.ini
