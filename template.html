@@ -3111,30 +3111,14 @@
                 </div>
 
                 <!-- Slots Grid -->
-                <div class="slots-title">Available Timings (1-Hour Slots)</div>
+                <div class="slots-title">Available Timings (3-Hour Slots)</div>
                 <div class="slots-grid" id="slots-picker-grid">
-                    <button class="slot-btn" data-time="9:00 AM - 10:00 AM">
-                        <span>09:00 AM - 10:00 AM</span>
+                    <button class="slot-btn" data-time="9:00 AM - 12:00 PM">
+                        <span>09:00 AM - 12:00 PM</span>
                         <span class="slot-status">Available</span>
                     </button>
-                    <button class="slot-btn" data-time="10:00 AM - 11:00 AM">
-                        <span>10:00 AM - 11:00 AM</span>
-                        <span class="slot-status">Available</span>
-                    </button>
-                    <button class="slot-btn" data-time="11:00 AM - 12:00 PM">
-                        <span>11:00 AM - 12:00 PM</span>
-                        <span class="slot-status">Available</span>
-                    </button>
-                    <button class="slot-btn" data-time="3:00 PM - 4:00 PM">
-                        <span>03:00 PM - 04:00 PM</span>
-                        <span class="slot-status">Available</span>
-                    </button>
-                    <button class="slot-btn" data-time="4:00 PM - 5:00 PM">
-                        <span>04:00 PM - 05:00 PM</span>
-                        <span class="slot-status">Available</span>
-                    </button>
-                    <button class="slot-btn" data-time="5:00 PM - 6:00 PM">
-                        <span>05:00 PM - 06:00 PM</span>
+                    <button class="slot-btn" data-time="5:00 PM - 8:00 PM">
+                        <span>05:00 PM - 08:00 PM</span>
                         <span class="slot-status">Available</span>
                     </button>
                 </div>
@@ -3143,7 +3127,7 @@
                 <div class="booking-footer">
                     <div class="pricing-info">
                         <div class="price-label">Dakshina / Fee</div>
-                        <div class="price-amount">₹501</div>
+                        <div class="price-amount">₹2000</div>
                     </div>
                     <button class="btn btn-gold btn-large" id="pay-booking-btn" style="margin: 0; padding: 14px 28px;">Confirm &amp; Pay</button>
                 </div>
@@ -3474,12 +3458,8 @@
         }
 
         const slotStartHours = {
-            "9:00 AM - 10:00 AM": 9,
-            "10:00 AM - 11:00 AM": 10,
-            "11:00 AM - 12:00 PM": 11,
-            "3:00 PM - 4:00 PM": 15,
-            "4:00 PM - 5:00 PM": 16,
-            "5:00 PM - 6:00 PM": 17
+            "9:00 AM - 12:00 PM": 9,
+            "5:00 PM - 8:00 PM": 17
         };
 
         function updateSlotsAvailability(date) {
@@ -3556,7 +3536,7 @@
             // Initialize Razorpay checkout
             const options = {
                 "key": "rzp_test_Vagdevi2026", // Test key (configurable)
-                "amount": "50100", // ₹501 (in paise subunits)
+                "amount": "200000", // ₹2000 (in paise subunits)
                 "currency": "INR",
                 "name": "Vagdevi Jyotishalayam",
                 "description": `Consultation: ${type}`,
