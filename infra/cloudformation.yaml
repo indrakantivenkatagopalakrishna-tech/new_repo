@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2012-10-17'
+AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS Serverless Infrastructure for Temple/Pooja Booking System (S3, CloudFront, Lambda, API Gateway)
 
 Parameters:
