@@ -10,6 +10,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Strip /api prefix if present (CloudFront routes /api/* to this Lambda)
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/')) {
+    req.url = req.url.substring(4);
+  } else if (req.url === '/api') {
+    req.url = '/';
+  }
+  next();
+});
+
 // Initialize Razorpay client
 // Using default test credentials if not configured in environment
 const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_Vagdevi2026';
