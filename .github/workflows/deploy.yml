@@ -1,0 +1,77 @@
+name: Temple Booking System Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout Repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Setup Node.js for Backend Package
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install --production
+
+      - name: Package Lambda function
+        run: |
+          cd backend
+          zip -r ../function.zip . -x "*.git*"
+
+      # 3. Setup Python & Compile Website Template
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Compile Website HTML
+        run: |
+          python compile_website.py
+
+      # 4. Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 5. Deploy Frontend to AWS S3
+      - name: Deploy Frontend to S3
+        run: |
+          # Sync index.html, template.html, and photos folder to S3
+          aws s3 cp index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html
+          aws s3 cp template.html s3://${{ secrets.S3_BUCKET_NAME }}/template.html
+          if [ -d "photos_compressed" ]; then
+            aws s3 sync photos_compressed s3://${{ secrets.S3_BUCKET_NAME }}/photos_compressed --delete
+          fi
+          if [ -d "photos" ]; then
+            aws s3 sync photos s3://${{ secrets.S3_BUCKET_NAME }}/photos --delete
+          fi
+
+      # 6. Deploy Backend to AWS Lambda
+      - name: Deploy Backend to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --zip-file fileb://function.zip
+
+      # 7. Invalidate CloudFront CDN Cache (for immediate deployment updates)
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"

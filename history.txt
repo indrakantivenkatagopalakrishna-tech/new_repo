@@ -1,0 +1,19 @@
+Temple Booking Platform - Change Log
+
+1. AWS Infrastructure:
+   - Deployed stack in N. Virginia (us-east-1) under new AWS account.
+   - Added AWS SES (Simple Email Service) sending permissions to the Lambda backend role in the CloudFormation template.
+
+2. Backend App:
+   - Integrated AWS SES SDK to send booking confirmations to indrakantivenkatagopalakrishna@gmail.com upon successful payment verification and webhook processing.
+   - Removed references to the Flutter admin app.
+
+3. Database Schema:
+   - Added monthly_revenue view to calculate total monthly revenue and transaction count.
+   - Successfully initialized the schema and views on Neon PostgreSQL database.
+
+4. DNS Integration:
+   - Linked indrakantivenkatagopalakrishna.com and www.indrakantivenkatagopalakrishna.com to the new CloudFront distribution (d3q4w7kap1sugm.cloudfront.net).
+
+5. Documentation:
+   - Updated AWS_GUIDE.md architecture diagram to remove the Flutter Admin app and add the SES Email Notification component.

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery Inspector v3</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0c081d;
+            color: #fff;
+            padding: 30px;
+            margin: 0;
+        }
+        h1 {
+            color: #d4af37;
+            text-align: center;
+            border-bottom: 2px solid #4c1d95;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            border-color: #f0d060;
+        }
+        .gallery-item img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 4px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            background: #000;
+        }
+        .filename {
+            font-size: 13px;
+            font-family: monospace;
+            word-break: break-all;
+            background: #000;
+            padding: 5px 8px;
+            border-radius: 4px;
+            color: #f0d060;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+        .info {
+            font-size: 12px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Brahmasri Indrakanti Venkata Gopalakrishna - Image Inspector v3</h1>
+    <p style="text-align: center; color: #aaa; margin-top: -20px; margin-bottom: 30px;">
+        Use this page to visually identify the 3 temple photos, 3 certificates, and event photos.
+    </p>
+    <div class="gallery-grid">
+
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.08.07 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.08.07 PM.jpeg</div>
+                <div class="info">Resolution: 746x1600 | Size: 151.2 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.08.13 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.08.13 PM.jpeg</div>
+                <div class="info">Resolution: 990x1395 | Size: 168.5 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.48 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.48 PM.jpeg</div>
+                <div class="info">Resolution: 980x1502 | Size: 158.1 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.49 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.49 PM.jpeg</div>
+                <div class="info">Resolution: 1600x1135 | Size: 321.8 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.50 PM (1).jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.50 PM (1).jpeg</div>
+                <div class="info">Resolution: 992x1422 | Size: 143.9 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.50 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.50 PM.jpeg</div>
+                <div class="info">Resolution: 1600x1167 | Size: 290.5 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.54 PM (2).jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.54 PM (2).jpeg</div>
+                <div class="info">Resolution: 1600x1200 | Size: 272.2 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.54 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.54 PM.jpeg</div>
+                <div class="info">Resolution: 1600x1200 | Size: 272.2 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.55 PM (1).jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.55 PM (1).jpeg</div>
+                <div class="info">Resolution: 1512x1006 | Size: 47.4 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.55 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.55 PM.jpeg</div>
+                <div class="info">Resolution: 1600x900 | Size: 69.2 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.56 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.56 PM.jpeg</div>
+                <div class="info">Resolution: 768x1024 | Size: 157.4 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.58.58 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.58.58 PM.jpeg</div>
+                <div class="info">Resolution: 1504x1004 | Size: 76.6 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/WhatsApp Image 2026-06-06 at 4.59.00 PM.jpeg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">WhatsApp Image 2026-06-06 at 4.59.00 PM.jpeg</div>
+                <div class="info">Resolution: 1024x768 | Size: 128.5 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/new_main_portrait.jpg" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">new_main_portrait.jpg</div>
+                <div class="info">Resolution: 1024x681 | Size: 251.6 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/unnamed (1).webp" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">unnamed (1).webp</div>
+                <div class="info">Resolution: 382x510 | Size: 59.9 KB</div>
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <img src="photos/unnamed.webp" alt="Image">
+            <div style="width: 100%;">
+                <div class="filename">unnamed.webp</div>
+                <div class="info">Resolution: 383x510 | Size: 43.2 KB</div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>
