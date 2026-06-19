@@ -5,28 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard — Indrakanti Venkatagopalakrishna</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --gold: #c9a84c;
       --gold-light: #e8c96a;
-      --dark: #0b0b0b;
-      --dark2: #131313;
-      --dark3: #1a1a1a;
-      --dark4: #222222;
-      --border: rgba(255,255,255,0.07);
-      --border-gold: rgba(201,168,76,0.2);
-      --text: #f0ece0;
-      --text-muted: #7a7060;
-      --text-dim: #a09880;
-      --error: #e05c5c;
-      --success: #4caf80;
-      --warning: #e8a84c;
-      --info: #4c9ae8;
-      --sidebar-w: 240px;
+      --gold-dim: rgba(201,168,76,0.15);
+      --dark:  #080808;
+      --dark2: #0e0e0e;
+      --dark3: #161616;
+      --dark4: #1e1e1e;
+      --dark5: #252525;
+      --border: rgba(255,255,255,0.06);
+      --border-gold: rgba(201,168,76,0.22);
+      --text: #f2ede0;
+      --text-dim: #9a8f7a;
+      --text-muted: #5a5040;
+      --green: #4caf80;
+      --blue: #4c9ae8;
+      --red: #e05c5c;
+      --orange: #e8a84c;
+      --sidebar-w: 260px;
+      --topbar-h: 64px;
+      --radius: 14px;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', sans-serif;
@@ -36,7 +42,13 @@
       display: flex;
     }
 
-    /* ── SIDEBAR ── */
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark2); }
+    ::-webkit-scrollbar-thumb { background: var(--dark5); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+    /* ─── SIDEBAR ─── */
     .sidebar {
       width: var(--sidebar-w);
       min-height: 100vh;
@@ -46,214 +58,396 @@
       flex-direction: column;
       position: fixed;
       top: 0; left: 0;
-      z-index: 100;
+      z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* Sidebar top glow */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
     }
 
     .sidebar-brand {
-      padding: 1.5rem 1.25rem 1.25rem;
+      padding: 1.5rem 1.5rem 1.25rem;
       border-bottom: 1px solid var(--border);
+      position: relative;
     }
-    .sidebar-brand .om { font-size: 1.6rem; display: block; margin-bottom: 0.35rem; }
-    .sidebar-brand h2 {
+    .brand-row { display: flex; align-items: center; gap: 0.75rem; }
+    .brand-om {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(201,168,76,0.3);
+    }
+    .brand-text h2 {
       font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--gold);
-      line-height: 1.3;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
     }
-    .sidebar-brand p { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
-
-    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; }
-    .nav-section-label {
+    .brand-text p { font-size: 0.68rem; color: var(--text-muted); margin-top: 1px; }
+    .brand-badge {
+      display: inline-block;
+      margin-top: 0.6rem;
       font-size: 0.65rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      padding: 0.5rem 0.5rem 0.25rem;
-      margin-top: 0.75rem;
+      color: var(--gold);
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      font-weight: 600;
     }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+
+    .nav-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.75rem 0.75rem 0.35rem;
+      margin-top: 0.25rem;
+    }
+
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.65rem 0.75rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.87rem;
+      gap: 0.75rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.86rem;
       font-weight: 500;
       color: var(--text-dim);
-      transition: all 0.15s;
+      cursor: pointer;
       text-decoration: none;
       border: none;
       background: none;
       width: 100%;
       text-align: left;
+      transition: all 0.18s;
+      position: relative;
+      margin-bottom: 2px;
     }
-    .nav-item:hover { background: var(--dark3); color: var(--text); }
-    .nav-item.active { background: rgba(201,168,76,0.1); color: var(--gold); }
-    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-item .nav-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--dark3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      transition: all 0.18s;
+    }
+    .nav-item:hover { color: var(--text); background: var(--dark3); }
+    .nav-item:hover .nav-icon { background: var(--dark4); }
+    .nav-item.active {
+      color: var(--gold);
+      background: rgba(201,168,76,0.08);
+    }
+    .nav-item.active .nav-icon {
+      background: rgba(201,168,76,0.15);
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--gold), var(--gold-light));
+      border-radius: 0 3px 3px 0;
+    }
 
     .sidebar-footer {
-      padding: 1rem 0.75rem;
+      padding: 1rem 0.75rem 1.25rem;
       border-top: 1px solid var(--border);
     }
-    .admin-badge {
+    .admin-card {
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .admin-avatar {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
       font-size: 0.75rem;
-      color: var(--text-muted);
-      padding: 0.5rem 0.5rem;
-      margin-bottom: 0.5rem;
+      font-weight: 700;
+      color: #060606;
+      flex-shrink: 0;
+    }
+    .admin-info { overflow: hidden; }
+    .admin-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
+    .admin-role { font-size: 0.68rem; color: var(--text-muted); }
+
     .btn-logout {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
       width: 100%;
-      padding: 0.65rem 0.75rem;
-      border-radius: 8px;
-      border: 1px solid rgba(224,92,92,0.2);
-      background: rgba(224,92,92,0.06);
-      color: var(--error);
-      font-size: 0.85rem;
-      font-weight: 500;
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid rgba(224,92,92,0.15);
+      background: rgba(224,92,92,0.05);
+      color: var(--red);
+      font-size: 0.83rem;
+      font-weight: 600;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
-      transition: all 0.15s;
+      transition: all 0.18s;
     }
-    .btn-logout:hover { background: rgba(224,92,92,0.12); border-color: rgba(224,92,92,0.4); }
+    .btn-logout:hover { background: rgba(224,92,92,0.12); border-color: rgba(224,92,92,0.35); }
 
-    /* ── MAIN ── */
+    /* ─── MAIN ─── */
     .main {
       margin-left: var(--sidebar-w);
       flex: 1;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background: var(--dark);
     }
 
+    /* ─── TOPBAR ─── */
     .topbar {
-      background: var(--dark2);
+      height: var(--topbar-h);
+      background: rgba(14,14,14,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 100;
     }
-    .topbar h1 { font-size: 1.1rem; font-weight: 600; }
-    .topbar .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .topbar-left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .topbar-left .breadcrumb {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
 
+    .topbar-dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .topbar-status { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ─── CONTENT ─── */
     .content { padding: 2rem; flex: 1; }
 
-    /* ── STAT CARDS ── */
+    /* ─── STAT CARDS ─── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1rem;
       margin-bottom: 2rem;
     }
+
     .stat-card {
       background: var(--dark2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius);
+      padding: 1.5rem;
       position: relative;
       overflow: hidden;
-      transition: border-color 0.2s;
+      cursor: default;
+      transition: all 0.25s;
     }
-    .stat-card:hover { border-color: var(--border-gold); }
-    .stat-card::before {
+    .stat-card:hover {
+      border-color: var(--border-gold);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,168,76,0.08) inset;
+    }
+
+    /* Gradient shimmer on top */
+    .stat-card::after {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      background: var(--card-accent, linear-gradient(90deg, transparent, var(--gold), transparent));
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: opacity 0.25s;
     }
-    .stat-card:hover::before { opacity: 1; }
-    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
-    .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--gold); line-height: 1; }
-    .stat-icon { position: absolute; top: 1rem; right: 1.25rem; font-size: 1.5rem; opacity: 0.25; }
+    .stat-card:hover::after { opacity: 1; }
 
-    /* ── BOOKINGS TABLE SECTION ── */
+    .stat-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+    .stat-icon-wrap {
+      width: 44px; height: 44px;
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      background: var(--icon-bg, rgba(201,168,76,0.1));
+      border: 1px solid var(--icon-border, rgba(201,168,76,0.15));
+    }
+    .stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.02em;
+    }
+    .stat-value span { font-size: 1.1rem; color: var(--text-dim); font-weight: 500; }
+    .stat-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+    /* ─── SECTION CARD ─── */
     .section-card {
       background: var(--dark2);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       overflow: hidden;
+      margin-bottom: 1.5rem;
     }
 
     .section-header {
-      padding: 1.25rem 1.5rem;
+      padding: 1.25rem 1.75rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 1rem;
+      background: var(--dark3);
     }
-    .section-header h2 { font-size: 1rem; font-weight: 600; }
+    .section-header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .section-header-icon {
+      width: 36px; height: 36px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border-gold);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+    }
+    .section-header h2 { font-size: 0.98rem; font-weight: 700; color: var(--text); }
+    .section-header p { font-size: 0.76rem; color: var(--text-muted); margin-top: 1px; }
+    .count-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gold);
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.2);
+      padding: 0.2rem 0.65rem;
+      border-radius: 99px;
+    }
 
-    /* ── FILTERS ── */
-    .filters {
+    /* ─── FILTERS BAR ─── */
+    .filters-bar {
+      padding: 1rem 1.75rem;
+      border-bottom: 1px solid var(--border);
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
       align-items: center;
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--dark3);
+      background: var(--dark);
     }
-    .search-wrap {
-      position: relative;
+
+    .search-field {
       flex: 1;
-      min-width: 200px;
+      min-width: 220px;
+      position: relative;
     }
-    .search-wrap .icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; }
-    input.search-input, select.filter-select, input.date-input {
-      background: var(--dark2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.55rem 0.85rem;
+    .search-field .s-icon {
+      position: absolute;
+      left: 0.85rem; top: 50%;
+      transform: translateY(-50%);
       font-size: 0.85rem;
+      pointer-events: none;
+      color: var(--text-muted);
+    }
+    .search-field input {
+      width: 100%;
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 0.6rem 0.85rem 0.6rem 2.25rem;
+      font-size: 0.84rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .search-field input:focus { border-color: var(--gold); background: var(--dark4); }
+    .search-field input::placeholder { color: var(--text-muted); }
+
+    select.f-select, input.f-date {
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.84rem;
       color: var(--text);
       font-family: 'Inter', sans-serif;
       outline: none;
       transition: border-color 0.2s;
+      cursor: pointer;
     }
-    input.search-input {
-      padding-left: 2.2rem;
-      width: 100%;
-    }
-    input.search-input:focus, select.filter-select:focus, input.date-input:focus {
-      border-color: var(--gold);
-    }
-    input.date-input { width: 150px; }
-    select.filter-select { cursor: pointer; min-width: 140px; }
-    select.filter-select option { background: var(--dark3); }
+    select.f-select { min-width: 145px; }
+    input.f-date { min-width: 140px; }
+    select.f-select:focus, input.f-date:focus { border-color: var(--gold); }
+    select.f-select option { background: #1a1a1a; }
 
-    .btn-filter {
-      padding: 0.55rem 1rem;
-      background: var(--gold);
+    .btn-apply {
+      padding: 0.6rem 1.25rem;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
       border: none;
-      border-radius: 8px;
-      color: #0d0d0d;
+      border-radius: 9px;
+      color: #060606;
       font-size: 0.82rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
-      transition: opacity 0.15s;
+      transition: opacity 0.15s, transform 0.15s;
+      letter-spacing: 0.02em;
     }
-    .btn-filter:hover { opacity: 0.85; }
+    .btn-apply:hover { opacity: 0.88; transform: translateY(-1px); }
+
     .btn-clear {
-      padding: 0.55rem 0.85rem;
+      padding: 0.6rem 0.9rem;
       background: transparent;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 9px;
       color: var(--text-muted);
       font-size: 0.82rem;
       cursor: pointer;
@@ -262,278 +456,408 @@
     }
     .btn-clear:hover { border-color: var(--text-dim); color: var(--text); }
 
-    /* ── TABLE ── */
+    /* ─── TABLE ─── */
     .table-wrap { overflow-x: auto; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+
     thead th {
-      padding: 0.85rem 1rem;
+      padding: 0.85rem 1.25rem;
       text-align: left;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.09em;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
       background: var(--dark3);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
+      position: sticky;
+      top: var(--topbar-h);
     }
+
     tbody tr {
       border-bottom: 1px solid var(--border);
-      transition: background 0.1s;
+      transition: background 0.12s;
     }
-    tbody tr:hover { background: var(--dark3); }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
     tbody tr:last-child { border-bottom: none; }
+
     td {
-      padding: 0.85rem 1rem;
-      color: var(--text);
+      padding: 1rem 1.25rem;
       vertical-align: middle;
     }
-    .td-name { font-weight: 500; }
-    .td-email { color: var(--text-dim); font-size: 0.8rem; }
-    .td-phone { font-family: monospace; font-size: 0.85rem; }
-    .td-type { color: var(--gold-light); font-size: 0.8rem; }
-    .td-date { white-space: nowrap; font-size: 0.82rem; }
 
-    /* ── STATUS BADGE + SELECT ── */
-    .status-select {
-      padding: 0.3rem 0.6rem;
-      border-radius: 20px;
+    .cell-num {
       font-size: 0.75rem;
+      color: var(--text-muted);
       font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .customer-cell .name {
+      font-size: 0.87rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .customer-cell .email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .phone-cell {
+      font-family: 'Courier New', monospace;
+      font-size: 0.83rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .type-cell {
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      font-weight: 500;
+      max-width: 150px;
+    }
+
+    .date-cell {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .date-cell .time { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+
+    /* Status dropdown */
+    .status-wrap { position: relative; display: inline-block; }
+    .status-sel {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.35rem 1.6rem 0.35rem 0.75rem;
+      border-radius: 99px;
+      font-size: 0.74rem;
+      font-weight: 700;
       border: 1px solid transparent;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
-      appearance: none;
-      -webkit-appearance: none;
-      background-repeat: no-repeat;
-      background-position: right 6px center;
-      padding-right: 1.5rem;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.4)'/%3E%3C/svg%3E");
       transition: all 0.15s;
+      letter-spacing: 0.03em;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(200,200,200,0.35)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 7px center;
     }
-    .status-select.pending   { background-color: rgba(201,168,76,0.12); border-color: rgba(201,168,76,0.3); color: var(--gold); }
-    .status-select.confirmed { background-color: rgba(76,175,128,0.12); border-color: rgba(76,175,128,0.3); color: var(--success); }
-    .status-select.completed { background-color: rgba(76,154,232,0.12); border-color: rgba(76,154,232,0.3); color: var(--info); }
-    .status-select.cancelled { background-color: rgba(224,92,92,0.12); border-color: rgba(224,92,92,0.3); color: var(--error); }
-    .status-select option { background: #1a1a1a; color: #f0ece0; }
+    .status-sel option { background: #1e1e1e; font-weight: 500; }
+    .s-pending   { background: rgba(201,168,76,0.1);  border-color: rgba(201,168,76,0.3);  color: #d4a843; }
+    .s-confirmed { background: rgba(76,175,128,0.1);  border-color: rgba(76,175,128,0.3);  color: #4caf80; }
+    .s-completed { background: rgba(76,154,232,0.1);  border-color: rgba(76,154,232,0.3);  color: #4c9ae8; }
+    .s-cancelled { background: rgba(224,92,92,0.1);   border-color: rgba(224,92,92,0.3);   color: #e05c5c; }
 
-    /* ── EMPTY / LOADING STATE ── */
-    .table-empty {
+    /* Empty / Loading */
+    .empty-state {
+      padding: 4rem 2rem;
       text-align: center;
-      padding: 3.5rem 2rem;
-      color: var(--text-muted);
     }
-    .table-empty .icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; opacity: 0.4; }
-    .table-empty p { font-size: 0.9rem; }
+    .empty-state .e-icon { font-size: 3rem; opacity: 0.25; margin-bottom: 1rem; }
+    .empty-state p { font-size: 0.88rem; color: var(--text-muted); }
 
-    .loading-row td {
-      text-align: center;
-      padding: 3rem;
-      color: var(--text-muted);
-    }
+    tr.loading-row td { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.87rem; }
 
-    /* ── PAGINATION ── */
+    /* ─── PAGINATION ─── */
     .pagination {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem 1.5rem;
+      padding: 1rem 1.75rem;
       border-top: 1px solid var(--border);
-      font-size: 0.82rem;
-      color: var(--text-muted);
+      background: var(--dark3);
     }
-    .page-btns { display: flex; gap: 0.4rem; }
-    .page-btn {
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
+    .pag-info { font-size: 0.78rem; color: var(--text-muted); }
+    .pag-btns { display: flex; gap: 0.35rem; align-items: center; }
+
+    .pag-btn {
+      height: 32px;
+      min-width: 32px;
+      padding: 0 0.5rem;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: transparent;
       color: var(--text-dim);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
+      font-weight: 500;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
     }
-    .page-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
-    .page-btn.active { background: var(--gold); border-color: var(--gold); color: #0d0d0d; font-weight: 600; }
-    .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pag-btn:hover:not(:disabled) { border-color: var(--border-gold); color: var(--gold); background: var(--gold-dim); }
+    .pag-btn.cur { background: var(--gold); border-color: var(--gold); color: #060606; font-weight: 700; }
+    .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    /* ── TOAST ── */
-    .toast {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      padding: 0.85rem 1.25rem;
+    /* ─── CHANGE PASSWORD ─── */
+    .pw-panel { padding: 2rem; max-width: 460px; }
+    .pw-panel .field-group { margin-bottom: 1.25rem; }
+    .pw-panel label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .pw-input-wrap { position: relative; }
+    .pw-input-wrap span {
+      position: absolute; left: 0.9rem; top: 50%;
+      transform: translateY(-50%); font-size: 0.85rem;
+      pointer-events: none; opacity: 0.4;
+    }
+    .pw-panel input[type="password"] {
+      width: 100%;
+      background: var(--dark3);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      font-size: 0.87rem;
-      font-weight: 500;
-      z-index: 9999;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      max-width: 340px;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
+      padding: 0.78rem 0.9rem 0.78rem 2.5rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .toast.success { background: rgba(76,175,128,0.15); border: 1px solid rgba(76,175,128,0.35); color: var(--success); }
-    .toast.error   { background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.35); color: var(--error); }
+    .pw-panel input:focus { border-color: var(--gold); background: var(--dark4); }
+    .pw-panel input::placeholder { color: var(--text-muted); opacity: 0.6; }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-      .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
-      .content { padding: 1rem; }
-    }
-
-    /* ── CHANGE PASSWORD PANEL ── */
-    #section-password label {
-      display:block; font-size:0.82rem; font-weight:500;
-      color:var(--text-muted); margin-bottom:0.4rem;
-    }
-    #section-password input {
-      width:100%; background:var(--dark3); border:1px solid var(--border);
-      border-radius:8px; padding:0.7rem 0.9rem; font-size:0.92rem;
-      color:var(--text); font-family:'Inter',sans-serif; outline:none;
-      transition:border-color 0.2s;
-    }
-    #section-password input:focus { border-color:var(--gold); }
-    .form-group { margin-bottom:1.2rem; }
     .strength-bar {
-      height:4px; background:var(--dark4); border-radius:99px;
-      margin-top:0.5rem; overflow:hidden;
+      height: 3px;
+      background: var(--dark5);
+      border-radius: 99px;
+      margin-top: 0.6rem;
+      overflow: hidden;
     }
     .strength-fill {
-      height:100%; width:0; border-radius:99px;
-      transition:width 0.35s, background 0.35s;
+      height: 100%; width: 0;
+      border-radius: 99px;
+      transition: width 0.35s, background 0.35s;
     }
-    .strength-label {
-      font-size:0.72rem; margin-top:0.3rem;
-      color:var(--text-muted); min-height:1em;
-    }
-    .btn-change-pw {
-      width:100%; padding:0.8rem;
-      background:linear-gradient(135deg,#c9a84c,#e8c96a,#c9a84c);
-      background-size:200% auto;
-      border:none; border-radius:10px;
-      font-size:0.92rem; font-weight:600; color:#0d0d0d;
-      cursor:pointer; font-family:'Inter',sans-serif;
-      transition:background-position 0.4s, box-shadow 0.2s;
-      box-shadow:0 4px 18px rgba(201,168,76,0.25);
-      margin-top:0.5rem;
-    }
-    .btn-change-pw:hover { background-position:right center; box-shadow:0 6px 26px rgba(201,168,76,0.4); }
-    .btn-change-pw:disabled { opacity:0.55; cursor:not-allowed; }
+    .strength-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; min-height: 1em; }
+
     .pw-msg {
-      padding:0.75rem 1rem; border-radius:8px; font-size:0.84rem;
-      margin-bottom:1.2rem;
-      background:rgba(224,92,92,0.1); border:1px solid rgba(224,92,92,0.3); color:var(--error);
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      font-size: 0.83rem;
+      margin-bottom: 1.25rem;
+      border-left: 3px solid;
     }
-    .pw-msg.success {
-      background:rgba(76,175,128,0.1); border-color:rgba(76,175,128,0.3); color:var(--success);
+    .pw-msg.err { background: rgba(224,92,92,0.07); border-color: var(--red); color: var(--red); }
+    .pw-msg.ok  { background: rgba(76,175,128,0.07); border-color: var(--green); color: var(--green); }
+
+    .btn-update-pw {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, #b8922a 100%);
+      background-size: 200% 200%;
+      border: none;
+      border-radius: 10px;
+      padding: 0.88rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #060606;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.03em;
+      transition: background-position 0.4s, box-shadow 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+      margin-top: 0.5rem;
+    }
+    .btn-update-pw:hover { background-position: right center; box-shadow: 0 6px 28px rgba(201,168,76,0.4); transform: translateY(-1px); }
+    .btn-update-pw:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ─── TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 1.75rem;
+      right: 1.75rem;
+      padding: 1rem 1.4rem;
+      border-radius: 12px;
+      font-size: 0.87rem;
+      font-weight: 600;
+      z-index: 9999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      max-width: 360px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok  { background: rgba(76,175,128,0.15); border: 1px solid rgba(76,175,128,0.3); color: var(--green); }
+    .toast.err { background: rgba(224,92,92,0.15);  border: 1px solid rgba(224,92,92,0.3);  color: var(--red); }
+    .toast-icon { font-size: 1.1rem; }
+
+    /* ─── SECTION ANIMATIONS ─── */
+    .section-fade {
+      animation: fadeUp 0.3s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .content { padding: 1.25rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .stats-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ── SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <span class="om">🕉</span>
-    <h2>Indrakanti Venkatagopalakrishna</h2>
-    <p>Admin Portal</p>
+    <div class="brand-row">
+      <div class="brand-om">🕉</div>
+      <div class="brand-text">
+        <h2>Indrakanti Admin</h2>
+        <p>Management Portal</p>
+      </div>
+    </div>
+    <div><span class="brand-badge">● Live</span></div>
   </div>
 
   <nav class="sidebar-nav">
-    <div class="nav-section-label">Overview</div>
+    <div class="nav-label">Management</div>
+
     <a class="nav-item active" id="nav-bookings" onclick="showSection('bookings')">
-      <span class="icon">📋</span> Bookings
+      <span class="nav-icon">📋</span>
+      Bookings
     </a>
+
     <a class="nav-item" id="nav-stats" onclick="showSection('stats')">
-      <span class="icon">📊</span> Revenue Stats
+      <span class="nav-icon">📊</span>
+      Revenue & Stats
     </a>
-    <div class="nav-section-label">Account</div>
+
+    <div class="nav-label">Account</div>
+
     <a class="nav-item" id="nav-password" onclick="showSection('password')">
-      <span class="icon">🔑</span> Change Password
+      <span class="nav-icon">🔑</span>
+      Change Password
     </a>
   </nav>
 
   <div class="sidebar-footer">
-    <div class="admin-badge" id="adminEmail">Loading...</div>
+    <div class="admin-card">
+      <div class="admin-avatar" id="adminInitials">A</div>
+      <div class="admin-info">
+        <div class="admin-name" id="adminEmailDisplay">Admin</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+    </div>
     <button class="btn-logout" onclick="logout()">
-      <span>↩</span> Logout
+      <span>↩</span> Sign Out
     </button>
   </div>
 </aside>
 
-<!-- MAIN CONTENT -->
+<!-- ── MAIN ── -->
 <main class="main">
+
+  <!-- TOPBAR -->
   <header class="topbar">
-    <div>
+    <div class="topbar-left">
       <h1 id="pageTitle">Bookings</h1>
-      <div class="breadcrumb" id="pageBreadcrumb">All consultation bookings</div>
+      <div class="breadcrumb" id="pageCrumb">
+        <span>Admin</span>
+        <span style="opacity:0.4">›</span>
+        <span id="pageCrumbEnd">All Bookings</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-dot"></div>
+      <span class="topbar-status">System Online</span>
     </div>
   </header>
 
   <div class="content">
 
-    <!-- STATS ROW -->
+    <!-- STAT CARDS -->
     <div class="stats-grid" id="statsGrid">
-      <div class="stat-card">
-        <div class="stat-label">Today's Bookings</div>
-        <div class="stat-value" id="statTodayBookings">—</div>
-        <span class="stat-icon">📅</span>
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#c9a84c,transparent);">
+        <div class="stat-top">
+          <div class="stat-icon-wrap" style="--icon-bg:rgba(201,168,76,0.1);--icon-border:rgba(201,168,76,0.2);">📅</div>
+          <div class="stat-label">Today's Bookings</div>
+        </div>
+        <div class="stat-value" id="statToday">—</div>
+        <div class="stat-sub">Confirmed today</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Today's Revenue</div>
-        <div class="stat-value" id="statTodayRev">—</div>
-        <span class="stat-icon">💰</span>
+
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#4caf80,transparent);">
+        <div class="stat-top">
+          <div class="stat-icon-wrap" style="--icon-bg:rgba(76,175,128,0.1);--icon-border:rgba(76,175,128,0.2);">💰</div>
+          <div class="stat-label">Today's Revenue</div>
+        </div>
+        <div class="stat-value" id="statTodayRev"><span>₹</span>—</div>
+        <div class="stat-sub">From confirmed bookings</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Weekly Revenue</div>
-        <div class="stat-value" id="statWeekRev">—</div>
-        <span class="stat-icon">📈</span>
+
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#4c9ae8,transparent);">
+        <div class="stat-top">
+          <div class="stat-icon-wrap" style="--icon-bg:rgba(76,154,232,0.1);--icon-border:rgba(76,154,232,0.2);">📈</div>
+          <div class="stat-label">Weekly Revenue</div>
+        </div>
+        <div class="stat-value" id="statWeek"><span>₹</span>—</div>
+        <div class="stat-sub">Last 7 days</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Monthly Revenue</div>
-        <div class="stat-value" id="statMonthRev">—</div>
-        <span class="stat-icon">🗓</span>
+
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#e8a84c,transparent);">
+        <div class="stat-top">
+          <div class="stat-icon-wrap" style="--icon-bg:rgba(232,168,76,0.1);--icon-border:rgba(232,168,76,0.2);">🗓</div>
+          <div class="stat-label">Monthly Revenue</div>
+        </div>
+        <div class="stat-value" id="statMonth"><span>₹</span>—</div>
+        <div class="stat-sub">Last 30 days</div>
       </div>
     </div>
 
-    <!-- BOOKINGS TABLE -->
-    <div class="section-card" id="section-bookings">
+    <!-- ── BOOKINGS TABLE ── -->
+    <div class="section-card section-fade" id="section-bookings">
       <div class="section-header">
-        <h2>Consultation Bookings</h2>
-        <span id="totalCount" style="font-size:0.8rem;color:var(--text-muted)">Loading...</span>
-      </div>
-
-      <!-- FILTERS -->
-      <div class="filters">
-        <div class="search-wrap">
-          <span class="icon">🔍</span>
-          <input type="text" class="search-input" id="searchInput" placeholder="Search name, email or phone…" />
+        <div class="section-header-left">
+          <div class="section-header-icon">📋</div>
+          <div>
+            <h2>Consultation Bookings</h2>
+            <p>Manage all consultation requests</p>
+          </div>
         </div>
-        <select class="filter-select" id="statusFilter">
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <input type="date" class="date-input" id="dateFrom" title="From date" />
-        <input type="date" class="date-input" id="dateTo" title="To date" />
-        <button class="btn-filter" onclick="applyFilters()">Apply</button>
-        <button class="btn-clear" onclick="clearFilters()">Clear</button>
+        <span class="count-badge" id="countBadge">Loading…</span>
       </div>
 
-      <!-- TABLE -->
+      <div class="filters-bar">
+        <div class="search-field">
+          <span class="s-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search name, email, phone…" />
+        </div>
+        <select class="f-select" id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="pending">⏳ Pending</option>
+          <option value="confirmed">✅ Confirmed</option>
+          <option value="completed">🔵 Completed</option>
+          <option value="cancelled">❌ Cancelled</option>
+        </select>
+        <input type="date" class="f-date" id="dateFrom" title="From date" />
+        <input type="date" class="f-date" id="dateTo" title="To date" />
+        <button class="btn-apply" onclick="applyFilters()">Apply</button>
+        <button class="btn-clear" onclick="clearFilters()">Reset</button>
+      </div>
+
       <div class="table-wrap">
         <table id="bookingsTable">
           <thead>
@@ -541,7 +865,7 @@
               <th>#</th>
               <th>Customer</th>
               <th>Phone</th>
-              <th>Consultation Type</th>
+              <th>Consultation</th>
               <th>Preferred Date</th>
               <th>Time Slot</th>
               <th>Status</th>
@@ -554,213 +878,246 @@
         </table>
       </div>
 
-      <!-- PAGINATION -->
       <div class="pagination">
-        <span id="paginationInfo">—</span>
-        <div class="page-btns" id="pageButtons"></div>
+        <span class="pag-info" id="pagInfo">—</span>
+        <div class="pag-btns" id="pagBtns"></div>
       </div>
     </div>
 
-    <!-- CHANGE PASSWORD PANEL -->
-    <div class="section-card" id="section-password" style="display:none;max-width:480px">
+    <!-- ── CHANGE PASSWORD ── -->
+    <div class="section-card" id="section-password" style="display:none;max-width:520px">
       <div class="section-header">
-        <h2>Change Password</h2>
+        <div class="section-header-left">
+          <div class="section-header-icon">🔑</div>
+          <div>
+            <h2>Change Password</h2>
+            <p>Update your admin login credentials</p>
+          </div>
+        </div>
       </div>
-      <div style="padding:2rem">
-        <div class="pw-msg" id="pwError" style="display:none"></div>
-        <div class="pw-msg success" id="pwSuccess" style="display:none"></div>
+      <div class="pw-panel">
+        <div class="pw-msg err" id="pwErr" style="display:none"></div>
+        <div class="pw-msg ok"  id="pwOk"  style="display:none"></div>
 
-        <div class="form-group">
-          <label for="currentPw">Current Password</label>
-          <input type="password" id="currentPw" placeholder="Enter current password" autocomplete="current-password" />
+        <div class="field-group">
+          <label>Current Password</label>
+          <div class="pw-input-wrap">
+            <span>🔒</span>
+            <input type="password" id="curPw" placeholder="Enter current password" autocomplete="current-password" />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="newPw">New Password</label>
-          <input type="password" id="newPw" placeholder="Min 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)" />
-          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-          <div class="strength-label" id="strengthLabel"></div>
+        <div class="field-group">
+          <label>New Password</label>
+          <div class="pw-input-wrap">
+            <span>✨</span>
+            <input type="password" id="newPw" placeholder="Minimum 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)" />
+          </div>
+          <div class="strength-bar"><div class="strength-fill" id="strFill"></div></div>
+          <div class="strength-lbl" id="strLbl"></div>
         </div>
-        <div class="form-group">
-          <label for="confirmPw">Confirm New Password</label>
-          <input type="password" id="confirmPw" placeholder="Repeat new password" autocomplete="new-password" />
+        <div class="field-group">
+          <label>Confirm New Password</label>
+          <div class="pw-input-wrap">
+            <span>✅</span>
+            <input type="password" id="confPw" placeholder="Repeat new password" autocomplete="new-password" />
+          </div>
         </div>
-        <button class="btn-change-pw" id="changePwBtn" onclick="submitChangePassword()">Update Password</button>
+        <button class="btn-update-pw" id="pwBtn" onclick="submitChangePw()">Update Password</button>
       </div>
     </div>
 
-  </div>
+  </div><!-- /content -->
 </main>
 
 <!-- TOAST -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
 
 <script>
   const API_BASE = '/api';
-  let currentPage = 1;
   const PAGE_SIZE = 20;
-  let totalPages = 1;
+  let currentPage = 1, totalPages = 1;
 
   // ── AUTH ──
   const token = sessionStorage.getItem('admin_token');
-  if (!token) { window.location.href = '/admin/index.html'; }
+  if (!token) window.location.href = '/admin/index.html';
 
-  const adminEmail = sessionStorage.getItem('admin_email') || 'Admin';
-  document.getElementById('adminEmail').textContent = adminEmail;
+  const adminEmail = sessionStorage.getItem('admin_email') || 'admin@site.com';
+  document.getElementById('adminEmailDisplay').textContent = adminEmail;
+  document.getElementById('adminInitials').textContent = adminEmail.charAt(0).toUpperCase();
 
-  function authHeaders() {
+  function authHdrs() {
     return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
   }
 
   function logout() {
-    sessionStorage.removeItem('admin_token');
-    sessionStorage.removeItem('admin_email');
+    sessionStorage.clear();
     window.location.href = '/admin/index.html';
   }
 
   // ── TOAST ──
-  function showToast(msg, type = 'success') {
+  function toast(msg, type = 'ok') {
     const t = document.getElementById('toast');
-    t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIcon').textContent = type === 'ok' ? '✓' : '✕';
     t.className = `toast ${type} show`;
-    setTimeout(() => t.classList.remove('show'), 3500);
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 3800);
+  }
+
+  // ── ANIMATE NUMBER ──
+  function animateNum(el, target, prefix = '') {
+    const dur = 800, start = performance.now();
+    const from = parseFloat(el.dataset.cur || 0);
+    el.dataset.cur = target;
+    function step(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      const val = from + (target - from) * ease;
+      el.textContent = prefix === '₹'
+        ? prefix + Math.round(val).toLocaleString('en-IN')
+        : Math.round(val);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
   // ── STATS ──
   async function loadStats() {
     try {
-      const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: authHeaders() });
-      if (res.status === 401 || res.status === 403) { logout(); return; }
-      const d = await res.json();
-      document.getElementById('statTodayBookings').textContent = d.today_bookings ?? '0';
-      document.getElementById('statTodayRev').textContent = d.today_revenue != null ? `₹${Number(d.today_revenue).toLocaleString('en-IN')}` : '₹0';
-      document.getElementById('statWeekRev').textContent = d.weekly_revenue != null ? `₹${Number(d.weekly_revenue).toLocaleString('en-IN')}` : '₹0';
-      document.getElementById('statMonthRev').textContent = d.monthly_revenue != null ? `₹${Number(d.monthly_revenue).toLocaleString('en-IN')}` : '₹0';
-    } catch (e) {
-      console.error('Stats load error', e);
-    }
+      const r = await fetch(`${API_BASE}/admin/dashboard`, { headers: authHdrs() });
+      if (r.status === 401 || r.status === 403) { logout(); return; }
+      const d = await r.json();
+
+      animateNum(document.getElementById('statToday'), d.today_bookings ?? 0);
+      document.getElementById('statTodayRev').innerHTML = `<span>₹</span>${Number(d.today_revenue||0).toLocaleString('en-IN')}`;
+      document.getElementById('statWeek').innerHTML     = `<span>₹</span>${Number(d.weekly_revenue||0).toLocaleString('en-IN')}`;
+      document.getElementById('statMonth').innerHTML    = `<span>₹</span>${Number(d.monthly_revenue||0).toLocaleString('en-IN')}`;
+    } catch(e) { console.error(e); }
   }
 
   // ── BOOKINGS ──
   async function loadBookings(page = 1) {
     currentPage = page;
-    const search = document.getElementById('searchInput').value.trim();
-    const status = document.getElementById('statusFilter').value;
+    const search   = document.getElementById('searchInput').value.trim();
+    const status   = document.getElementById('statusFilter').value;
     const dateFrom = document.getElementById('dateFrom').value;
     const dateTo   = document.getElementById('dateTo').value;
 
-    const params = new URLSearchParams({ page, limit: PAGE_SIZE });
-    if (search)   params.set('query', search);
-    if (status)   params.set('status', status);
-    if (dateFrom) params.set('date_from', dateFrom);
-    if (dateTo)   params.set('date_to', dateTo);
+    const p = new URLSearchParams({ page, limit: PAGE_SIZE });
+    if (search)   p.set('query', search);
+    if (status)   p.set('status', status);
+    if (dateFrom) p.set('date_from', dateFrom);
+    if (dateTo)   p.set('date_to', dateTo);
 
-    document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="8">Loading…</td></tr>';
+    document.getElementById('bookingsBody').innerHTML =
+      '<tr class="loading-row"><td colspan="8">Loading…</td></tr>';
 
     try {
-      const res = await fetch(`${API_BASE}/admin/bookings?${params}`, { headers: authHeaders() });
-      if (res.status === 401 || res.status === 403) { logout(); return; }
-      const data = await res.json();
-
-      const bookings = data.bookings || data; // handle both paginated and plain array
+      const r = await fetch(`${API_BASE}/admin/bookings?${p}`, { headers: authHdrs() });
+      if (r.status === 401 || r.status === 403) { logout(); return; }
+      const data = await r.json();
+      const bookings = data.bookings || data;
       const total = data.total ?? bookings.length;
       totalPages = data.totalPages ?? 1;
 
-      document.getElementById('totalCount').textContent = `${total} booking${total !== 1 ? 's' : ''}`;
-      renderTable(bookings, page);
-      renderPagination(page, totalPages, total);
-    } catch (e) {
-      document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="8">Failed to load bookings.</td></tr>';
+      document.getElementById('countBadge').textContent = `${total} booking${total !== 1 ? 's' : ''}`;
+      renderRows(bookings, page);
+      renderPag(page, totalPages, total);
+    } catch(e) {
+      document.getElementById('bookingsBody').innerHTML =
+        '<tr class="loading-row"><td colspan="8">Failed to load. Please refresh.</td></tr>';
     }
   }
 
-  function renderTable(bookings, page) {
+  function renderRows(rows, page) {
     const tbody = document.getElementById('bookingsBody');
-    if (!bookings.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><span class="icon">📭</span><p>No bookings found matching your filters.</p></div></td></tr>`;
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="8">
+        <div class="empty-state">
+          <div class="e-icon">📭</div>
+          <p>No bookings found matching your filters.</p>
+        </div></td></tr>`;
       return;
     }
-
     const startIdx = (page - 1) * PAGE_SIZE;
-    tbody.innerHTML = bookings.map((b, i) => {
-      const statusClass = (b.status || 'pending').toLowerCase().replace(/[^a-z]/g, '');
-      const dateStr = b.booking_date ? new Date(b.booking_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-      const submittedStr = b.created_at ? new Date(b.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-      const slotStart = b.start_time ? b.start_time.substring(0,5) : '—';
-      const slotEnd   = b.end_time   ? b.end_time.substring(0,5)   : '';
-      const slotStr   = slotEnd ? `${slotStart} – ${slotEnd}` : slotStart;
+    tbody.innerHTML = rows.map((b, i) => {
+      const st = (b.status || 'pending').toLowerCase();
+      const dateStr = b.booking_date
+        ? new Date(b.booking_date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+        : '—';
+      const createdStr = b.created_at
+        ? new Date(b.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+        : '—';
+      const slotT = b.start_time ? b.start_time.substring(0,5) : '';
+      const slotE = b.end_time   ? b.end_time.substring(0,5)   : '';
+      const slot  = slotT ? (slotE ? `${slotT} – ${slotE}` : slotT) : '—';
 
       return `<tr>
-        <td style="color:var(--text-muted);font-size:0.8rem">${startIdx + i + 1}</td>
+        <td class="cell-num">${startIdx + i + 1}</td>
+        <td><div class="customer-cell">
+          <div class="name">${h(b.customer_name||'—')}</div>
+          <div class="email">${h(b.customer_email||'')}</div>
+        </div></td>
+        <td class="phone-cell">${h(b.customer_phone||'—')}</td>
+        <td class="type-cell">${h(b.pooja_name||'—')}</td>
+        <td class="date-cell">${dateStr}</td>
+        <td class="date-cell"><div class="time">${slot}</div></td>
         <td>
-          <div class="td-name">${escHtml(b.customer_name || '—')}</div>
-          <div class="td-email">${escHtml(b.customer_email || '')}</div>
+          <div class="status-wrap">
+            <select class="status-sel s-${st}" data-id="${b.id}" onchange="updateStatus(this)">
+              <option value="pending"   ${st==='pending'   ?'selected':''}>⏳ Pending</option>
+              <option value="confirmed" ${st==='confirmed' ?'selected':''}>✅ Confirmed</option>
+              <option value="completed" ${st==='completed' ?'selected':''}>🔵 Completed</option>
+              <option value="cancelled" ${st==='cancelled' ?'selected':''}>❌ Cancelled</option>
+            </select>
+          </div>
         </td>
-        <td class="td-phone">${escHtml(b.customer_phone || '—')}</td>
-        <td class="td-type">${escHtml(b.pooja_name || '—')}</td>
-        <td class="td-date">${dateStr}</td>
-        <td class="td-date" style="font-size:0.8rem">${slotStr}</td>
-        <td>
-          <select class="status-select ${statusClass}" 
-                  data-id="${b.id}" 
-                  onchange="updateStatus(this)"
-                  title="Change status">
-            <option value="pending"   ${b.status==='pending'   ? 'selected':''}>Pending</option>
-            <option value="confirmed" ${b.status==='confirmed' ? 'selected':''}>Confirmed</option>
-            <option value="completed" ${b.status==='completed' ? 'selected':''}>Completed</option>
-            <option value="cancelled" ${b.status==='cancelled' ? 'selected':''}>Cancelled</option>
-          </select>
-        </td>
-        <td class="td-date">${submittedStr}</td>
+        <td class="date-cell">${createdStr}</td>
       </tr>`;
     }).join('');
   }
 
-  async function updateStatus(selectEl) {
-    const id = selectEl.dataset.id;
-    const status = selectEl.value;
-    const oldClass = selectEl.className.replace('status-select ', '').trim().split(' ').find(c => ['pending','confirmed','completed','cancelled'].includes(c));
-
-    // Optimistically update style
-    selectEl.className = `status-select ${status}`;
-
+  async function updateStatus(sel) {
+    const id = sel.dataset.id;
+    const newStatus = sel.value;
+    const oldCls = [...sel.classList].find(c => c.startsWith('s-') && c !== 's-');
+    sel.className = `status-sel s-${newStatus}`;
     try {
-      const res = await fetch(`${API_BASE}/admin/bookings/${id}/status`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({ status })
+      const r = await fetch(`${API_BASE}/admin/bookings/${id}/status`, {
+        method: 'PUT', headers: authHdrs(),
+        body: JSON.stringify({ status: newStatus })
       });
-      if (!res.ok) {
-        const err = await res.json();
-        showToast(err.error || 'Failed to update status', 'error');
-        selectEl.className = `status-select ${oldClass}`;
-        selectEl.value = oldClass;
+      if (!r.ok) {
+        const err = await r.json();
+        toast(err.error || 'Update failed', 'err');
+        sel.className = `status-sel ${oldCls}`;
+        sel.value = oldCls ? oldCls.replace('s-', '') : 'pending';
         return;
       }
-      showToast(`Booking #${id} marked as ${status}`, 'success');
-      loadStats(); // refresh revenue stats
-    } catch (e) {
-      showToast('Network error updating status', 'error');
-      selectEl.className = `status-select ${oldClass}`;
-      selectEl.value = oldClass;
+      toast(`Booking #${id} → ${newStatus}`, 'ok');
+      loadStats();
+    } catch {
+      toast('Network error', 'err');
+      sel.className = `status-sel ${oldCls}`;
     }
   }
 
-  function renderPagination(page, total, totalItems) {
-    const info = document.getElementById('paginationInfo');
-    const btns = document.getElementById('pageButtons');
-    const start = Math.min((page - 1) * PAGE_SIZE + 1, totalItems);
-    const end = Math.min(page * PAGE_SIZE, totalItems);
-    info.textContent = totalItems > 0 ? `Showing ${start}–${end} of ${totalItems}` : '';
+  function renderPag(page, total, totalItems) {
+    const from = Math.min((page-1)*PAGE_SIZE+1, totalItems);
+    const to   = Math.min(page*PAGE_SIZE, totalItems);
+    document.getElementById('pagInfo').textContent =
+      totalItems > 0 ? `Showing ${from}–${to} of ${totalItems} bookings` : '0 results';
 
-    let html = `<button class="page-btn" onclick="loadBookings(${page-1})" ${page<=1?'disabled':''}>← Prev</button>`;
-
-    // Show up to 5 page buttons around current
+    let html = `<button class="pag-btn" onclick="loadBookings(${page-1})" ${page<=1?'disabled':''}>← Prev</button>`;
     const range = 2;
     for (let p = Math.max(1, page-range); p <= Math.min(total, page+range); p++) {
-      html += `<button class="page-btn ${p===page?'active':''}" onclick="loadBookings(${p})">${p}</button>`;
+      html += `<button class="pag-btn ${p===page?'cur':''}" onclick="loadBookings(${p})">${p}</button>`;
     }
-    html += `<button class="page-btn" onclick="loadBookings(${page+1})" ${page>=total?'disabled':''}>Next →</button>`;
-    btns.innerHTML = html;
+    html += `<button class="pag-btn" onclick="loadBookings(${page+1})" ${page>=total?'disabled':''}>Next →</button>`;
+    document.getElementById('pagBtns').innerHTML = html;
   }
 
   function applyFilters() { loadBookings(1); }
@@ -771,115 +1128,102 @@
     document.getElementById('dateTo').value = '';
     loadBookings(1);
   }
-
-  // Enter key triggers search
   document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
 
+  // ── SECTION SWITCHING ──
+  const sections = ['bookings', 'password'];
   function showSection(sec) {
-    // Hide all sections
-    document.getElementById('section-bookings').style.display = 'none';
-    document.getElementById('section-password').style.display = 'none';
+    sections.forEach(s => {
+      const el = document.getElementById(`section-${s}`);
+      if (el) el.style.display = 'none';
+    });
     document.getElementById('statsGrid').style.display = sec === 'password' ? 'none' : 'grid';
 
-    // Show selected
-    if (sec === 'password') {
-      document.getElementById('section-password').style.display = 'block';
-      document.getElementById('pageTitle').textContent = 'Change Password';
-      document.getElementById('pageBreadcrumb').textContent = 'Update your admin login password';
-    } else {
-      document.getElementById('section-bookings').style.display = 'block';
-      document.getElementById('pageTitle').textContent = 'Bookings';
-      document.getElementById('pageBreadcrumb').textContent = 'All consultation bookings';
+    const target = document.getElementById(`section-${sec}`);
+    if (target) {
+      target.style.display = 'block';
+      target.classList.remove('section-fade');
+      void target.offsetWidth;
+      target.classList.add('section-fade');
     }
 
+    const titles = { bookings: ['Bookings','All Bookings'], stats: ['Revenue','Revenue & Stats'], password: ['Change Password','Security'] };
+    const t = titles[sec] || ['Dashboard','Dashboard'];
+    document.getElementById('pageTitle').textContent = t[0];
+    document.getElementById('pageCrumbEnd').textContent = t[1];
+
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(`nav-${sec}`).classList.add('active');
+    const nav = document.getElementById(`nav-${sec}`);
+    if (nav) nav.classList.add('active');
   }
 
-  // ── CHANGE PASSWORD ──
+  // ── PASSWORD STRENGTH ──
   function checkStrength(val) {
-    const fill = document.getElementById('strengthFill');
-    const label = document.getElementById('strengthLabel');
-    if (!val) { fill.style.width = '0'; label.textContent = ''; return; }
-    let score = 0;
-    if (val.length >= 8)  score++;
-    if (val.length >= 12) score++;
-    if (/[A-Z]/.test(val)) score++;
-    if (/[0-9]/.test(val)) score++;
-    if (/[^A-Za-z0-9]/.test(val)) score++;
-    const levels = [
-      { w: '20%', color: '#e05c5c', text: 'Very weak' },
-      { w: '40%', color: '#e8954c', text: 'Weak' },
-      { w: '60%', color: '#e8c84c', text: 'Fair' },
-      { w: '80%', color: '#8fd66a', text: 'Strong' },
-      { w: '100%', color: '#4caf80', text: 'Very strong' },
+    const fill = document.getElementById('strFill');
+    const lbl  = document.getElementById('strLbl');
+    if (!val) { fill.style.width = '0'; lbl.textContent = ''; return; }
+    let s = 0;
+    if (val.length >= 8)  s++;
+    if (val.length >= 12) s++;
+    if (/[A-Z]/.test(val)) s++;
+    if (/[0-9]/.test(val)) s++;
+    if (/[^A-Za-z0-9]/.test(val)) s++;
+    const lvls = [
+      { w:'20%', c:'#e05c5c', t:'Very weak' },
+      { w:'40%', c:'#e8954c', t:'Weak' },
+      { w:'60%', c:'#e8c84c', t:'Fair' },
+      { w:'80%', c:'#8fd66a', t:'Strong' },
+      { w:'100%',c:'#4caf80', t:'Very strong' },
     ];
-    const lvl = levels[Math.min(score - 1, 4)] || levels[0];
-    fill.style.width = lvl.w;
-    fill.style.background = lvl.color;
-    label.textContent = lvl.text;
-    label.style.color = lvl.color;
+    const l = lvls[Math.min(s-1,4)] || lvls[0];
+    fill.style.width = l.w;
+    fill.style.background = l.c;
+    lbl.textContent = l.t;
+    lbl.style.color = l.c;
   }
 
-  async function submitChangePassword() {
-    const currentPw = document.getElementById('currentPw').value;
-    const newPw     = document.getElementById('newPw').value;
-    const confirmPw = document.getElementById('confirmPw').value;
-    const errEl     = document.getElementById('pwError');
-    const okEl      = document.getElementById('pwSuccess');
-    const btn       = document.getElementById('changePwBtn');
+  async function submitChangePw() {
+    const cur  = document.getElementById('curPw').value;
+    const nw   = document.getElementById('newPw').value;
+    const conf = document.getElementById('confPw').value;
+    const errEl = document.getElementById('pwErr');
+    const okEl  = document.getElementById('pwOk');
+    const btn   = document.getElementById('pwBtn');
 
     errEl.style.display = 'none';
     okEl.style.display  = 'none';
 
-    if (!currentPw || !newPw || !confirmPw) {
-      errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return;
-    }
-    if (newPw.length < 8) {
-      errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = 'block'; return;
-    }
-    if (newPw !== confirmPw) {
-      errEl.textContent = 'New passwords do not match.'; errEl.style.display = 'block'; return;
-    }
+    if (!cur || !nw || !conf) { errEl.textContent='All fields are required.'; errEl.style.display='block'; return; }
+    if (nw.length < 8)        { errEl.textContent='New password must be at least 8 characters.'; errEl.style.display='block'; return; }
+    if (nw !== conf)           { errEl.textContent='Passwords do not match.'; errEl.style.display='block'; return; }
 
-    btn.disabled = true;
-    btn.textContent = 'Updating…';
-
+    btn.disabled = true; btn.textContent = 'Updating…';
     try {
-      const res = await fetch(`${API_BASE}/admin/change-password`, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({ current_password: currentPw, new_password: newPw })
+      const r = await fetch(`${API_BASE}/admin/change-password`, {
+        method: 'PUT', headers: authHdrs(),
+        body: JSON.stringify({ current_password: cur, new_password: nw })
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        errEl.textContent = data.error || 'Failed to change password.';
-        errEl.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Update Password';
-        return;
+      const d = await r.json();
+      if (!r.ok) {
+        errEl.textContent = d.error || 'Failed.'; errEl.style.display='block';
+        btn.disabled=false; btn.textContent='Update Password'; return;
       }
-
-      // Success — clear fields, show message, auto-logout in 3s
-      document.getElementById('currentPw').value = '';
-      document.getElementById('newPw').value = '';
-      document.getElementById('confirmPw').value = '';
-      document.getElementById('strengthFill').style.width = '0';
-      document.getElementById('strengthLabel').textContent = '';
-      okEl.textContent = 'Password updated! You will be logged out in 3 seconds…';
-      okEl.style.display = 'block';
-      btn.textContent = 'Update Password';
-
-      setTimeout(() => logout(), 3000);
-    } catch (e) {
-      errEl.textContent = 'Network error. Please try again.';
-      errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Update Password';
+      ['curPw','newPw','confPw'].forEach(id => document.getElementById(id).value='');
+      document.getElementById('strFill').style.width='0';
+      document.getElementById('strLbl').textContent='';
+      okEl.textContent = '✓ Password updated! Signing you out in 3 seconds…';
+      okEl.style.display='block';
+      btn.textContent='Update Password';
+      setTimeout(logout, 3000);
+    } catch {
+      errEl.textContent='Network error.'; errEl.style.display='block';
+      btn.disabled=false; btn.textContent='Update Password';
     }
   }
 
-  function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  // ── UTILS ──
+  function h(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   // ── INIT ──
