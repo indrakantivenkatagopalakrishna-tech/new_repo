@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Admin Dashboard — Indrakanti Venkatagopalakrishna</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
@@ -12,13 +12,13 @@
     :root {
       --gold: #c9a84c;
       --gold-light: #e8c96a;
-      --gold-dim: rgba(201,168,76,0.15);
+      --gold-dim: rgba(201,168,76,0.12);
       --dark:  #080808;
       --dark2: #0e0e0e;
       --dark3: #161616;
       --dark4: #1e1e1e;
       --dark5: #252525;
-      --border: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.07);
       --border-gold: rgba(201,168,76,0.22);
       --text: #f2ede0;
       --text-dim: #9a8f7a;
@@ -28,30 +28,40 @@
       --red: #e05c5c;
       --orange: #e8a84c;
       --sidebar-w: 260px;
-      --topbar-h: 64px;
+      --topbar-h: 60px;
       --radius: 14px;
     }
 
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Inter', sans-serif;
       background: var(--dark);
       color: var(--text);
       min-height: 100vh;
       display: flex;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--dark2); }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--dark5); border-radius: 99px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+    /* ─── SIDEBAR OVERLAY (mobile) ─── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 199;
+      backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.show { display: block; }
 
     /* ─── SIDEBAR ─── */
     .sidebar {
       width: var(--sidebar-w);
-      min-height: 100vh;
+      height: 100vh;
       background: var(--dark2);
       border-right: 1px solid var(--border);
       display: flex;
@@ -60,163 +70,144 @@
       top: 0; left: 0;
       z-index: 200;
       transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
     }
-
-    /* Sidebar top glow */
     .sidebar::before {
       content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
+      position: absolute; top: 0; left: 0; right: 0;
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
     }
 
-    .sidebar-brand {
-      padding: 1.5rem 1.5rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      position: relative;
+    /* Mobile: sidebar hidden off-screen */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); box-shadow: 4px 0 40px rgba(0,0,0,0.6); }
     }
-    .brand-row { display: flex; align-items: center; gap: 0.75rem; }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.25rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .brand-row { display: flex; align-items: center; gap: 0.7rem; }
     .brand-om {
-      width: 40px; height: 40px;
+      width: 38px; height: 38px;
       background: linear-gradient(135deg, var(--gold), var(--gold-light));
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
+      font-size: 1rem; flex-shrink: 0;
       box-shadow: 0 4px 14px rgba(201,168,76,0.3);
     }
-    .brand-text h2 {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.2;
-    }
-    .brand-text p { font-size: 0.68rem; color: var(--text-muted); margin-top: 1px; }
+    .brand-text h2 { font-size: 0.8rem; font-weight: 700; color: var(--text); line-height: 1.25; }
+    .brand-text p  { font-size: 0.67rem; color: var(--text-muted); margin-top: 1px; }
     .brand-badge {
-      display: inline-block;
-      margin-top: 0.6rem;
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      margin-top: 0.55rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
       color: var(--gold);
-      background: rgba(201,168,76,0.1);
-      border: 1px solid rgba(201,168,76,0.2);
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.18);
       padding: 0.2rem 0.55rem;
       border-radius: 99px;
       font-weight: 600;
     }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
-
+    .sidebar-nav { flex: 1; padding: 0.9rem 0.7rem; overflow-y: auto; }
     .nav-label {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--text-muted);
-      font-weight: 600;
-      padding: 0.75rem 0.75rem 0.35rem;
-      margin-top: 0.25rem;
+      font-weight: 700;
+      padding: 0.65rem 0.75rem 0.3rem;
+      margin-top: 0.2rem;
     }
-
     .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.7rem 0.85rem;
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.68rem 0.8rem;
       border-radius: 10px;
-      font-size: 0.86rem;
-      font-weight: 500;
+      font-size: 0.85rem; font-weight: 500;
       color: var(--text-dim);
       cursor: pointer;
       text-decoration: none;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
+      border: none; background: none;
+      width: 100%; text-align: left;
       transition: all 0.18s;
       position: relative;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
+      touch-action: manipulation;
     }
-    .nav-item .nav-icon {
+    .nav-icon {
       width: 32px; height: 32px;
       border-radius: 8px;
       background: var(--dark3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem;
-      flex-shrink: 0;
+      font-size: 0.88rem; flex-shrink: 0;
       transition: all 0.18s;
     }
     .nav-item:hover { color: var(--text); background: var(--dark3); }
     .nav-item:hover .nav-icon { background: var(--dark4); }
-    .nav-item.active {
-      color: var(--gold);
-      background: rgba(201,168,76,0.08);
-    }
-    .nav-item.active .nav-icon {
-      background: rgba(201,168,76,0.15);
-    }
+    .nav-item.active { color: var(--gold); background: rgba(201,168,76,0.07); }
+    .nav-item.active .nav-icon { background: rgba(201,168,76,0.14); }
     .nav-item.active::before {
       content: '';
-      position: absolute;
-      left: 0; top: 20%; bottom: 20%;
+      position: absolute; left: 0; top: 22%; bottom: 22%;
       width: 3px;
       background: linear-gradient(to bottom, var(--gold), var(--gold-light));
       border-radius: 0 3px 3px 0;
     }
 
     .sidebar-footer {
-      padding: 1rem 0.75rem 1.25rem;
+      padding: 0.9rem 0.7rem 1.1rem;
       border-top: 1px solid var(--border);
+      flex-shrink: 0;
     }
     .admin-card {
       background: var(--dark3);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 0.75rem 0.9rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
+      padding: 0.7rem 0.85rem;
+      margin-bottom: 0.65rem;
+      display: flex; align-items: center; gap: 0.6rem;
     }
     .admin-avatar {
       width: 32px; height: 32px;
       background: linear-gradient(135deg, var(--gold), var(--gold-light));
       border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #060606;
+      font-size: 0.75rem; font-weight: 700; color: #060606;
       flex-shrink: 0;
     }
-    .admin-info { overflow: hidden; }
     .admin-name {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.76rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .admin-role { font-size: 0.68rem; color: var(--text-muted); }
-
+    .admin-role { font-size: 0.67rem; color: var(--text-muted); margin-top: 1px; }
     .btn-logout {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      width: 100%;
-      padding: 0.65rem 0.85rem;
+      display: flex; align-items: center; gap: 0.55rem;
+      width: 100%; padding: 0.65rem 0.85rem;
       border-radius: 10px;
-      border: 1px solid rgba(224,92,92,0.15);
+      border: 1px solid rgba(224,92,92,0.14);
       background: rgba(224,92,92,0.05);
       color: var(--red);
-      font-size: 0.83rem;
-      font-weight: 600;
+      font-size: 0.82rem; font-weight: 600;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       transition: all 0.18s;
+      touch-action: manipulation;
     }
-    .btn-logout:hover { background: rgba(224,92,92,0.12); border-color: rgba(224,92,92,0.35); }
+    .btn-logout:hover { background: rgba(224,92,92,0.12); }
 
     /* ─── MAIN ─── */
     .main {
@@ -225,112 +216,145 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: var(--dark);
+      overflow-x: hidden;
+    }
+    @media (max-width: 900px) {
+      .main { margin-left: 0; }
     }
 
     /* ─── TOPBAR ─── */
     .topbar {
       height: var(--topbar-h);
-      background: rgba(14,14,14,0.85);
+      background: rgba(14,14,14,0.9);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
+      padding: 0 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
-      top: 0;
-      z-index: 100;
+      top: 0; z-index: 100;
+      gap: 1rem;
     }
-    .topbar-left h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text);
+    .topbar-left { display: flex; align-items: center; gap: 0.85rem; min-width: 0; flex: 1; }
+    .hamburger {
+      display: none;
+      flex-direction: column; justify-content: center; align-items: center;
+      gap: 5px;
+      width: 38px; height: 38px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--dark3);
+      cursor: pointer;
+      flex-shrink: 0;
+      touch-action: manipulation;
+      transition: background 0.15s;
     }
-    .topbar-left .breadcrumb {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 1px;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
+    .hamburger:hover { background: var(--dark4); border-color: var(--border-gold); }
+    .hamburger span {
+      display: block; width: 16px; height: 1.5px;
+      background: var(--text-dim);
+      border-radius: 2px;
+      transition: all 0.25s;
     }
-    .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+    @media (max-width: 900px) { .hamburger { display: flex; } }
 
-    .topbar-dot {
-      width: 8px; height: 8px;
+    .topbar-titles { min-width: 0; }
+    .topbar-titles h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .topbar-titles .breadcrumb {
+      font-size: 0.7rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.3rem;
+      margin-top: 1px;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .live-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.72rem; color: var(--text-muted);
+    }
+    .live-badge .dot {
+      width: 7px; height: 7px; border-radius: 50%;
       background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--green);
-      animation: pulse-dot 2s ease-in-out infinite;
+      box-shadow: 0 0 7px var(--green);
+      animation: blink 2s ease-in-out infinite;
     }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-    .topbar-status { font-size: 0.75rem; color: var(--text-muted); }
 
     /* ─── CONTENT ─── */
-    .content { padding: 2rem; flex: 1; }
+    .content {
+      padding: 1.5rem;
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+    }
+    @media (min-width: 1400px) { .content { padding: 2rem; } }
 
     /* ─── STAT CARDS ─── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
     }
+    @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px)  { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; } }
 
     .stat-card {
       background: var(--dark2);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.5rem;
+      padding: 1.25rem;
       position: relative;
       overflow: hidden;
-      cursor: default;
       transition: all 0.25s;
     }
-    .stat-card:hover {
-      border-color: var(--border-gold);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,168,76,0.08) inset;
-    }
-
-    /* Gradient shimmer on top */
+    .stat-card:hover { border-color: var(--border-gold); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.4); }
     .stat-card::after {
       content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
       background: var(--card-accent, linear-gradient(90deg, transparent, var(--gold), transparent));
-      opacity: 0;
-      transition: opacity 0.25s;
+      opacity: 0; transition: opacity 0.25s;
     }
     .stat-card:hover::after { opacity: 1; }
 
-    .stat-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+    .stat-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.85rem; }
     .stat-icon-wrap {
-      width: 44px; height: 44px;
-      border-radius: 11px;
+      width: 40px; height: 40px;
+      border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      background: var(--icon-bg, rgba(201,168,76,0.1));
-      border: 1px solid var(--icon-border, rgba(201,168,76,0.15));
+      font-size: 1.1rem;
+      flex-shrink: 0;
     }
-    .stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.09em; font-weight: 600; }
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      text-align: right;
+      line-height: 1.3;
+    }
     .stat-value {
-      font-size: 2rem;
+      font-size: 1.65rem;
       font-weight: 700;
       color: var(--text);
       line-height: 1;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
       letter-spacing: -0.02em;
     }
-    .stat-value span { font-size: 1.1rem; color: var(--text-dim); font-weight: 500; }
-    .stat-sub { font-size: 0.72rem; color: var(--text-muted); }
+    .stat-value span { font-size: 0.95rem; color: var(--text-dim); font-weight: 500; }
+    .stat-sub { font-size: 0.68rem; color: var(--text-muted); }
+
+    @media (max-width: 480px) {
+      .stat-card { padding: 1rem; }
+      .stat-value { font-size: 1.4rem; }
+      .stat-icon-wrap { width: 34px; height: 34px; font-size: 0.95rem; }
+      .stat-label { font-size: 0.63rem; }
+    }
 
     /* ─── SECTION CARD ─── */
     .section-card {
@@ -342,208 +366,200 @@
     }
 
     .section-header {
-      padding: 1.25rem 1.75rem;
+      padding: 1.1rem 1.4rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.75rem;
       background: var(--dark3);
+      flex-wrap: wrap;
     }
-    .section-header-left { display: flex; align-items: center; gap: 0.75rem; }
-    .section-header-icon {
-      width: 36px; height: 36px;
+    .sh-left { display: flex; align-items: center; gap: 0.7rem; }
+    .sh-icon {
+      width: 34px; height: 34px;
       background: var(--gold-dim);
       border: 1px solid var(--border-gold);
       border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.95rem;
+      font-size: 0.9rem; flex-shrink: 0;
     }
-    .section-header h2 { font-size: 0.98rem; font-weight: 700; color: var(--text); }
-    .section-header p { font-size: 0.76rem; color: var(--text-muted); margin-top: 1px; }
+    .sh-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .sh-sub   { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
     .count-badge {
-      font-size: 0.72rem;
-      font-weight: 600;
+      font-size: 0.7rem; font-weight: 700;
       color: var(--gold);
-      background: rgba(201,168,76,0.1);
-      border: 1px solid rgba(201,168,76,0.2);
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.18);
       padding: 0.2rem 0.65rem;
       border-radius: 99px;
+      white-space: nowrap;
     }
 
-    /* ─── FILTERS BAR ─── */
+    /* ─── FILTERS ─── */
     .filters-bar {
-      padding: 1rem 1.75rem;
+      padding: 1rem 1.4rem;
       border-bottom: 1px solid var(--border);
       display: flex;
-      gap: 0.75rem;
+      gap: 0.65rem;
       flex-wrap: wrap;
       align-items: center;
       background: var(--dark);
     }
-
     .search-field {
       flex: 1;
-      min-width: 220px;
+      min-width: 180px;
       position: relative;
     }
     .search-field .s-icon {
-      position: absolute;
-      left: 0.85rem; top: 50%;
+      position: absolute; left: 0.8rem; top: 50%;
       transform: translateY(-50%);
-      font-size: 0.85rem;
-      pointer-events: none;
-      color: var(--text-muted);
+      font-size: 0.82rem; color: var(--text-muted); pointer-events: none;
     }
     .search-field input {
       width: 100%;
-      background: var(--dark3);
-      border: 1px solid var(--border);
+      background: var(--dark3); border: 1px solid var(--border);
       border-radius: 9px;
-      padding: 0.6rem 0.85rem 0.6rem 2.25rem;
-      font-size: 0.84rem;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
+      padding: 0.6rem 0.8rem 0.6rem 2.1rem;
+      font-size: 0.84rem; color: var(--text);
+      font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
     }
-    .search-field input:focus { border-color: var(--gold); background: var(--dark4); }
+    .search-field input:focus { border-color: var(--gold); }
     .search-field input::placeholder { color: var(--text-muted); }
 
-    select.f-select, input.f-date {
-      background: var(--dark3);
-      border: 1px solid var(--border);
+    select.f-sel, input.f-date {
+      background: var(--dark3); border: 1px solid var(--border);
       border-radius: 9px;
-      padding: 0.6rem 0.85rem;
-      font-size: 0.84rem;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: border-color 0.2s;
-      cursor: pointer;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.84rem; color: var(--text);
+      font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color 0.2s; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
     }
-    select.f-select { min-width: 145px; }
-    input.f-date { min-width: 140px; }
-    select.f-select:focus, input.f-date:focus { border-color: var(--gold); }
-    select.f-select option { background: #1a1a1a; }
+    select.f-sel {
+      min-width: 140px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(160,150,130,0.5)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 2rem;
+    }
+    input.f-date { min-width: 135px; }
+    select.f-sel:focus, input.f-date:focus { border-color: var(--gold); }
+    select.f-sel option { background: #1a1a1a; }
 
     .btn-apply {
-      padding: 0.6rem 1.25rem;
+      padding: 0.6rem 1.1rem;
       background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      border: none;
-      border-radius: 9px;
-      color: #060606;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
+      border: none; border-radius: 9px;
+      color: #060606; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif;
       transition: opacity 0.15s, transform 0.15s;
-      letter-spacing: 0.02em;
+      white-space: nowrap;
+      touch-action: manipulation;
     }
     .btn-apply:hover { opacity: 0.88; transform: translateY(-1px); }
-
     .btn-clear {
-      padding: 0.6rem 0.9rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      color: var(--text-muted);
-      font-size: 0.82rem;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.15s;
+      padding: 0.6rem 0.85rem;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 9px; color: var(--text-muted);
+      font-size: 0.82rem; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.15s;
+      white-space: nowrap;
+      touch-action: manipulation;
     }
     .btn-clear:hover { border-color: var(--text-dim); color: var(--text); }
 
-    /* ─── TABLE ─── */
-    .table-wrap { overflow-x: auto; }
+    /* Mobile filter stacking */
+    @media (max-width: 640px) {
+      .filters-bar {
+        padding: 0.85rem 1rem;
+        gap: 0.5rem;
+      }
+      .search-field { min-width: 100%; flex: none; width: 100%; }
+      select.f-sel { flex: 1; min-width: 0; }
+      input.f-date { flex: 1; min-width: 0; width: auto; }
+      .search-field input { font-size: 16px; } /* Prevent iOS zoom */
+    }
 
+    /* ─── DESKTOP TABLE ─── */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-
     thead th {
-      padding: 0.85rem 1.25rem;
+      padding: 0.8rem 1.1rem;
       text-align: left;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: var(--text-muted);
-      font-weight: 700;
+      font-size: 0.67rem; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--text-muted); font-weight: 700;
       background: var(--dark3);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
-      position: sticky;
-      top: var(--topbar-h);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 0.9rem 1.1rem; vertical-align: middle; }
+
+    .cell-num { font-size: 0.73rem; color: var(--text-muted); font-weight: 600; }
+    .customer-cell .name { font-size: 0.86rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .customer-cell .email { font-size: 0.73rem; color: var(--text-muted); }
+    .phone-cell { font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--text-dim); white-space: nowrap; }
+    .type-cell { font-size: 0.78rem; color: var(--gold-light); font-weight: 500; }
+    .date-cell { font-size: 0.79rem; color: var(--text-dim); white-space: nowrap; }
+    .time-text { font-size: 0.71rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ─── MOBILE CARD VIEW (replaces table on phones) ─── */
+    .mobile-cards { display: none; }
+
+    @media (max-width: 700px) {
+      .table-wrap { display: none; }
+      .mobile-cards { display: block; }
     }
 
-    tbody tr {
+    .booking-card {
+      padding: 1rem 1.1rem;
       border-bottom: 1px solid var(--border);
       transition: background 0.12s;
     }
-    tbody tr:hover { background: rgba(255,255,255,0.02); }
-    tbody tr:last-child { border-bottom: none; }
+    .booking-card:last-child { border-bottom: none; }
+    .booking-card:active { background: rgba(255,255,255,0.02); }
 
-    td {
-      padding: 1rem 1.25rem;
-      vertical-align: middle;
+    .bc-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+    .bc-name { font-size: 0.92rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .bc-email { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .bc-phone { font-size: 0.78rem; color: var(--text-dim); font-family: monospace; margin-top: 4px; }
+    .bc-type {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 600; color: var(--gold-light);
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.15);
+      padding: 0.2rem 0.6rem; border-radius: 99px;
+      margin-top: 6px;
     }
+    .bc-meta {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-top: 0.75rem; align-items: center;
+    }
+    .bc-date {
+      font-size: 0.75rem; color: var(--text-dim);
+      background: var(--dark3); border: 1px solid var(--border);
+      padding: 0.22rem 0.65rem; border-radius: 6px;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .bc-slot { font-size: 0.72rem; color: var(--text-muted); }
 
-    .cell-num {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .customer-cell .name {
-      font-size: 0.87rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-    .customer-cell .email {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .phone-cell {
-      font-family: 'Courier New', monospace;
-      font-size: 0.83rem;
-      color: var(--text-dim);
-      white-space: nowrap;
-    }
-
-    .type-cell {
-      font-size: 0.78rem;
-      color: var(--gold-light);
-      font-weight: 500;
-      max-width: 150px;
-    }
-
-    .date-cell {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      white-space: nowrap;
-    }
-    .date-cell .time { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
-
-    /* Status dropdown */
-    .status-wrap { position: relative; display: inline-block; }
+    /* Status dropdown (shared) */
     .status-sel {
-      appearance: none;
-      -webkit-appearance: none;
-      padding: 0.35rem 1.6rem 0.35rem 0.75rem;
+      appearance: none; -webkit-appearance: none;
+      padding: 0.3rem 1.6rem 0.3rem 0.7rem;
       border-radius: 99px;
-      font-size: 0.74rem;
-      font-weight: 700;
+      font-size: 0.73rem; font-weight: 700;
       border: 1px solid transparent;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.15s;
-      letter-spacing: 0.03em;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(200,200,200,0.35)'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 7px center;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: all 0.15s; letter-spacing: 0.02em;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5 4.5-5z' fill='rgba(200,200,200,0.35)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 7px center;
+      touch-action: manipulation;
     }
     .status-sel option { background: #1e1e1e; font-weight: 500; }
     .s-pending   { background: rgba(201,168,76,0.1);  border-color: rgba(201,168,76,0.3);  color: #d4a843; }
@@ -552,99 +568,77 @@
     .s-cancelled { background: rgba(224,92,92,0.1);   border-color: rgba(224,92,92,0.3);   color: #e05c5c; }
 
     /* Empty / Loading */
-    .empty-state {
-      padding: 4rem 2rem;
-      text-align: center;
-    }
-    .empty-state .e-icon { font-size: 3rem; opacity: 0.25; margin-bottom: 1rem; }
-    .empty-state p { font-size: 0.88rem; color: var(--text-muted); }
-
-    tr.loading-row td { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.87rem; }
+    .empty-state { padding: 3.5rem 1.5rem; text-align: center; }
+    .empty-state .e-icon { font-size: 2.5rem; opacity: 0.2; margin-bottom: 0.85rem; }
+    .empty-state p { font-size: 0.86rem; color: var(--text-muted); }
+    tr.loading-row td { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem; }
+    .loading-cards { padding: 2.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
 
     /* ─── PAGINATION ─── */
     .pagination {
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       justify-content: space-between;
-      padding: 1rem 1.75rem;
+      padding: 0.9rem 1.4rem;
       border-top: 1px solid var(--border);
       background: var(--dark3);
+      flex-wrap: wrap; gap: 0.6rem;
     }
-    .pag-info { font-size: 0.78rem; color: var(--text-muted); }
-    .pag-btns { display: flex; gap: 0.35rem; align-items: center; }
-
+    .pag-info { font-size: 0.76rem; color: var(--text-muted); }
+    .pag-btns { display: flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; }
     .pag-btn {
-      height: 32px;
-      min-width: 32px;
-      padding: 0 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-dim);
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
+      height: 30px; min-width: 30px; padding: 0 0.45rem;
+      border-radius: 7px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-dim);
+      font-size: 0.78rem; font-weight: 500;
+      cursor: pointer; font-family: 'Inter', sans-serif;
       transition: all 0.15s;
       display: flex; align-items: center; justify-content: center;
+      touch-action: manipulation;
     }
-    .pag-btn:hover:not(:disabled) { border-color: var(--border-gold); color: var(--gold); background: var(--gold-dim); }
+    .pag-btn:hover:not(:disabled) { border-color: var(--border-gold); color: var(--gold); }
     .pag-btn.cur { background: var(--gold); border-color: var(--gold); color: #060606; font-weight: 700; }
     .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* ─── CHANGE PASSWORD ─── */
-    .pw-panel { padding: 2rem; max-width: 460px; }
-    .pw-panel .field-group { margin-bottom: 1.25rem; }
+    .pw-panel { padding: 1.5rem; }
+    @media (min-width: 540px) { .pw-panel { padding: 2rem; } }
+
+    .field-group { margin-bottom: 1.2rem; }
     .pw-panel label {
       display: block;
-      font-size: 0.72rem;
-      font-weight: 700;
+      font-size: 0.7rem; font-weight: 700;
       color: var(--text-muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      margin-bottom: 0.48rem;
     }
     .pw-input-wrap { position: relative; }
     .pw-input-wrap span {
       position: absolute; left: 0.9rem; top: 50%;
-      transform: translateY(-50%); font-size: 0.85rem;
+      transform: translateY(-50%); font-size: 0.82rem;
       pointer-events: none; opacity: 0.4;
     }
     .pw-panel input[type="password"] {
       width: 100%;
-      background: var(--dark3);
-      border: 1px solid var(--border);
+      background: var(--dark3); border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 0.78rem 0.9rem 0.78rem 2.5rem;
-      font-size: 0.9rem;
+      padding: 0.82rem 0.9rem 0.82rem 2.5rem;
+      font-size: 16px; /* Prevent iOS zoom */
       color: var(--text);
-      font-family: 'Inter', sans-serif;
-      outline: none;
+      font-family: 'Inter', sans-serif; outline: none;
       transition: border-color 0.2s, background 0.2s;
+      -webkit-appearance: none;
     }
     .pw-panel input:focus { border-color: var(--gold); background: var(--dark4); }
     .pw-panel input::placeholder { color: var(--text-muted); opacity: 0.6; }
 
-    .strength-bar {
-      height: 3px;
-      background: var(--dark5);
-      border-radius: 99px;
-      margin-top: 0.6rem;
-      overflow: hidden;
-    }
-    .strength-fill {
-      height: 100%; width: 0;
-      border-radius: 99px;
-      transition: width 0.35s, background 0.35s;
-    }
+    .strength-bar { height: 3px; background: var(--dark5); border-radius: 99px; margin-top: 0.5rem; overflow: hidden; }
+    .strength-fill { height: 100%; width: 0; border-radius: 99px; transition: width 0.35s, background 0.35s; }
     .strength-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; min-height: 1em; }
 
     .pw-msg {
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
-      font-size: 0.83rem;
-      margin-bottom: 1.25rem;
-      border-left: 3px solid;
+      padding: 0.8rem 1rem; border-radius: 10px;
+      font-size: 0.82rem; margin-bottom: 1.1rem;
+      border-left: 3px solid; line-height: 1.5;
     }
     .pw-msg.err { background: rgba(224,92,92,0.07); border-color: var(--red); color: var(--red); }
     .pw-msg.ok  { background: rgba(76,175,128,0.07); border-color: var(--green); color: var(--green); }
@@ -653,18 +647,16 @@
       width: 100%;
       background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, #b8922a 100%);
       background-size: 200% 200%;
-      border: none;
-      border-radius: 10px;
-      padding: 0.88rem;
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: #060606;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
+      border: none; border-radius: 10px;
+      padding: 0.9rem;
+      font-size: 0.95rem; font-weight: 700; color: #060606;
+      cursor: pointer; font-family: 'Inter', sans-serif;
       letter-spacing: 0.03em;
       transition: background-position 0.4s, box-shadow 0.2s, transform 0.15s;
       box-shadow: 0 4px 20px rgba(201,168,76,0.25);
       margin-top: 0.5rem;
+      touch-action: manipulation;
+      min-height: 48px;
     }
     .btn-update-pw:hover { background-position: right center; box-shadow: 0 6px 28px rgba(201,168,76,0.4); transform: translateY(-1px); }
     .btn-update-pw:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -672,52 +664,36 @@
     /* ─── TOAST ─── */
     .toast {
       position: fixed;
-      bottom: 1.75rem;
-      right: 1.75rem;
-      padding: 1rem 1.4rem;
-      border-radius: 12px;
-      font-size: 0.87rem;
-      font-weight: 600;
-      z-index: 9999;
-      transform: translateY(80px);
-      opacity: 0;
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+      right: 1.25rem; left: 1.25rem;
       max-width: 360px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      margin: 0 auto;
+      padding: 0.9rem 1.2rem;
+      border-radius: 12px;
+      font-size: 0.86rem; font-weight: 600;
+      z-index: 9999;
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex; align-items: center; gap: 0.6rem;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    @media (min-width: 500px) {
+      .toast { left: auto; right: 1.5rem; bottom: 1.5rem; }
     }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.ok  { background: rgba(76,175,128,0.15); border: 1px solid rgba(76,175,128,0.3); color: var(--green); }
     .toast.err { background: rgba(224,92,92,0.15);  border: 1px solid rgba(224,92,92,0.3);  color: var(--red); }
-    .toast-icon { font-size: 1.1rem; }
 
-    /* ─── SECTION ANIMATIONS ─── */
-    .section-fade {
-      animation: fadeUp 0.3s cubic-bezier(0.4,0,0.2,1) both;
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 900px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
-      .content { padding: 1.25rem; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 540px) {
-      .stats-grid { grid-template-columns: 1fr; }
-    }
+    /* ─── ANIMATIONS ─── */
+    .section-fade { animation: fadeUp 0.28s cubic-bezier(0.4,0,0.2,1) both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
   </style>
 </head>
 <body>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
 <!-- ── SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
@@ -729,41 +705,32 @@
         <p>Management Portal</p>
       </div>
     </div>
-    <div><span class="brand-badge">● Live</span></div>
+    <div><span class="brand-badge"><span class="live-dot"></span> Live</span></div>
   </div>
 
   <nav class="sidebar-nav">
     <div class="nav-label">Management</div>
-
     <a class="nav-item active" id="nav-bookings" onclick="showSection('bookings')">
-      <span class="nav-icon">📋</span>
-      Bookings
+      <span class="nav-icon">📋</span> Bookings
     </a>
-
     <a class="nav-item" id="nav-stats" onclick="showSection('stats')">
-      <span class="nav-icon">📊</span>
-      Revenue & Stats
+      <span class="nav-icon">📊</span> Revenue &amp; Stats
     </a>
-
     <div class="nav-label">Account</div>
-
     <a class="nav-item" id="nav-password" onclick="showSection('password')">
-      <span class="nav-icon">🔑</span>
-      Change Password
+      <span class="nav-icon">🔑</span> Change Password
     </a>
   </nav>
 
   <div class="sidebar-footer">
     <div class="admin-card">
-      <div class="admin-avatar" id="adminInitials">A</div>
-      <div class="admin-info">
-        <div class="admin-name" id="adminEmailDisplay">Admin</div>
+      <div class="admin-avatar" id="adminInitial">A</div>
+      <div>
+        <div class="admin-name" id="adminEmail">Admin</div>
         <div class="admin-role">Administrator</div>
       </div>
     </div>
-    <button class="btn-logout" onclick="logout()">
-      <span>↩</span> Sign Out
-    </button>
+    <button class="btn-logout" onclick="logout()">↩ Sign Out</button>
   </div>
 </aside>
 
@@ -773,16 +740,23 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-left">
-      <h1 id="pageTitle">Bookings</h1>
-      <div class="breadcrumb" id="pageCrumb">
-        <span>Admin</span>
-        <span style="opacity:0.4">›</span>
-        <span id="pageCrumbEnd">All Bookings</span>
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-titles">
+        <h1 id="pageTitle">Bookings</h1>
+        <div class="breadcrumb">
+          <span>Admin</span>
+          <span style="opacity:0.4">›</span>
+          <span id="pageCrumb">All Bookings</span>
+        </div>
       </div>
     </div>
     <div class="topbar-right">
-      <div class="topbar-dot"></div>
-      <span class="topbar-status">System Online</span>
+      <div class="live-badge">
+        <span class="dot"></span>
+        <span class="hide-xs">Online</span>
+      </div>
     </div>
   </header>
 
@@ -790,51 +764,48 @@
 
     <!-- STAT CARDS -->
     <div class="stats-grid" id="statsGrid">
-      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#c9a84c,transparent);">
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#c9a84c,transparent)">
         <div class="stat-top">
-          <div class="stat-icon-wrap" style="--icon-bg:rgba(201,168,76,0.1);--icon-border:rgba(201,168,76,0.2);">📅</div>
-          <div class="stat-label">Today's Bookings</div>
+          <div class="stat-icon-wrap" style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2)">📅</div>
+          <div class="stat-label">Today's<br>Bookings</div>
         </div>
-        <div class="stat-value" id="statToday">—</div>
+        <div class="stat-value" id="s1">—</div>
         <div class="stat-sub">Confirmed today</div>
       </div>
-
-      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#4caf80,transparent);">
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#4caf80,transparent)">
         <div class="stat-top">
-          <div class="stat-icon-wrap" style="--icon-bg:rgba(76,175,128,0.1);--icon-border:rgba(76,175,128,0.2);">💰</div>
-          <div class="stat-label">Today's Revenue</div>
+          <div class="stat-icon-wrap" style="background:rgba(76,175,128,0.1);border:1px solid rgba(76,175,128,0.2)">💰</div>
+          <div class="stat-label">Today's<br>Revenue</div>
         </div>
-        <div class="stat-value" id="statTodayRev"><span>₹</span>—</div>
-        <div class="stat-sub">From confirmed bookings</div>
+        <div class="stat-value" id="s2"><span>₹</span>—</div>
+        <div class="stat-sub">Confirmed only</div>
       </div>
-
-      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#4c9ae8,transparent);">
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#4c9ae8,transparent)">
         <div class="stat-top">
-          <div class="stat-icon-wrap" style="--icon-bg:rgba(76,154,232,0.1);--icon-border:rgba(76,154,232,0.2);">📈</div>
-          <div class="stat-label">Weekly Revenue</div>
+          <div class="stat-icon-wrap" style="background:rgba(76,154,232,0.1);border:1px solid rgba(76,154,232,0.2)">📈</div>
+          <div class="stat-label">Weekly<br>Revenue</div>
         </div>
-        <div class="stat-value" id="statWeek"><span>₹</span>—</div>
+        <div class="stat-value" id="s3"><span>₹</span>—</div>
         <div class="stat-sub">Last 7 days</div>
       </div>
-
-      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#e8a84c,transparent);">
+      <div class="stat-card" style="--card-accent:linear-gradient(90deg,transparent,#e8a84c,transparent)">
         <div class="stat-top">
-          <div class="stat-icon-wrap" style="--icon-bg:rgba(232,168,76,0.1);--icon-border:rgba(232,168,76,0.2);">🗓</div>
-          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-icon-wrap" style="background:rgba(232,168,76,0.1);border:1px solid rgba(232,168,76,0.2)">🗓</div>
+          <div class="stat-label">Monthly<br>Revenue</div>
         </div>
-        <div class="stat-value" id="statMonth"><span>₹</span>—</div>
+        <div class="stat-value" id="s4"><span>₹</span>—</div>
         <div class="stat-sub">Last 30 days</div>
       </div>
     </div>
 
-    <!-- ── BOOKINGS TABLE ── -->
+    <!-- ── BOOKINGS ── -->
     <div class="section-card section-fade" id="section-bookings">
       <div class="section-header">
-        <div class="section-header-left">
-          <div class="section-header-icon">📋</div>
+        <div class="sh-left">
+          <div class="sh-icon">📋</div>
           <div>
-            <h2>Consultation Bookings</h2>
-            <p>Manage all consultation requests</p>
+            <div class="sh-title">Consultation Bookings</div>
+            <div class="sh-sub">Manage all consultation requests</div>
           </div>
         </div>
         <span class="count-badge" id="countBadge">Loading…</span>
@@ -845,29 +816,30 @@
           <span class="s-icon">🔍</span>
           <input type="text" id="searchInput" placeholder="Search name, email, phone…" />
         </div>
-        <select class="f-select" id="statusFilter">
+        <select class="f-sel" id="statusFilter">
           <option value="">All Statuses</option>
           <option value="pending">⏳ Pending</option>
           <option value="confirmed">✅ Confirmed</option>
           <option value="completed">🔵 Completed</option>
           <option value="cancelled">❌ Cancelled</option>
         </select>
-        <input type="date" class="f-date" id="dateFrom" title="From date" />
-        <input type="date" class="f-date" id="dateTo" title="To date" />
+        <input type="date" class="f-date" id="dateFrom" />
+        <input type="date" class="f-date" id="dateTo" />
         <button class="btn-apply" onclick="applyFilters()">Apply</button>
         <button class="btn-clear" onclick="clearFilters()">Reset</button>
       </div>
 
+      <!-- Desktop table -->
       <div class="table-wrap">
-        <table id="bookingsTable">
+        <table>
           <thead>
             <tr>
               <th>#</th>
               <th>Customer</th>
               <th>Phone</th>
               <th>Consultation</th>
-              <th>Preferred Date</th>
-              <th>Time Slot</th>
+              <th>Date</th>
+              <th>Slot</th>
               <th>Status</th>
               <th>Submitted</th>
             </tr>
@@ -878,6 +850,11 @@
         </table>
       </div>
 
+      <!-- Mobile cards -->
+      <div class="mobile-cards" id="mobileCards">
+        <div class="loading-cards">Loading bookings…</div>
+      </div>
+
       <div class="pagination">
         <span class="pag-info" id="pagInfo">—</span>
         <div class="pag-btns" id="pagBtns"></div>
@@ -885,20 +862,19 @@
     </div>
 
     <!-- ── CHANGE PASSWORD ── -->
-    <div class="section-card" id="section-password" style="display:none;max-width:520px">
+    <div class="section-card" id="section-password" style="display:none;max-width:500px">
       <div class="section-header">
-        <div class="section-header-left">
-          <div class="section-header-icon">🔑</div>
+        <div class="sh-left">
+          <div class="sh-icon">🔑</div>
           <div>
-            <h2>Change Password</h2>
-            <p>Update your admin login credentials</p>
+            <div class="sh-title">Change Password</div>
+            <div class="sh-sub">Update your admin login credentials</div>
           </div>
         </div>
       </div>
       <div class="pw-panel">
         <div class="pw-msg err" id="pwErr" style="display:none"></div>
         <div class="pw-msg ok"  id="pwOk"  style="display:none"></div>
-
         <div class="field-group">
           <label>Current Password</label>
           <div class="pw-input-wrap">
@@ -926,12 +902,12 @@
       </div>
     </div>
 
-  </div><!-- /content -->
+  </div>
 </main>
 
 <!-- TOAST -->
 <div class="toast" id="toast">
-  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastIcon"></span>
   <span id="toastMsg"></span>
 </div>
 
@@ -944,17 +920,25 @@
   const token = sessionStorage.getItem('admin_token');
   if (!token) window.location.href = '/admin/index.html';
 
-  const adminEmail = sessionStorage.getItem('admin_email') || 'admin@site.com';
-  document.getElementById('adminEmailDisplay').textContent = adminEmail;
-  document.getElementById('adminInitials').textContent = adminEmail.charAt(0).toUpperCase();
+  const adminEmail = sessionStorage.getItem('admin_email') || 'admin';
+  document.getElementById('adminEmail').textContent = adminEmail;
+  document.getElementById('adminInitial').textContent = adminEmail.charAt(0).toUpperCase();
 
   function authHdrs() {
     return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
   }
+  function logout() { sessionStorage.clear(); window.location.href = '/admin/index.html'; }
 
-  function logout() {
-    sessionStorage.clear();
-    window.location.href = '/admin/index.html';
+  // ── SIDEBAR TOGGLE ──
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const o = document.getElementById('overlay');
+    s.classList.toggle('open');
+    o.classList.toggle('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
   }
 
   // ── TOAST ──
@@ -963,25 +947,8 @@
     document.getElementById('toastMsg').textContent = msg;
     document.getElementById('toastIcon').textContent = type === 'ok' ? '✓' : '✕';
     t.className = `toast ${type} show`;
-    clearTimeout(t._tid);
-    t._tid = setTimeout(() => t.classList.remove('show'), 3800);
-  }
-
-  // ── ANIMATE NUMBER ──
-  function animateNum(el, target, prefix = '') {
-    const dur = 800, start = performance.now();
-    const from = parseFloat(el.dataset.cur || 0);
-    el.dataset.cur = target;
-    function step(now) {
-      const p = Math.min((now - start) / dur, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      const val = from + (target - from) * ease;
-      el.textContent = prefix === '₹'
-        ? prefix + Math.round(val).toLocaleString('en-IN')
-        : Math.round(val);
-      if (p < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 3800);
   }
 
   // ── STATS ──
@@ -990,11 +957,10 @@
       const r = await fetch(`${API_BASE}/admin/dashboard`, { headers: authHdrs() });
       if (r.status === 401 || r.status === 403) { logout(); return; }
       const d = await r.json();
-
-      animateNum(document.getElementById('statToday'), d.today_bookings ?? 0);
-      document.getElementById('statTodayRev').innerHTML = `<span>₹</span>${Number(d.today_revenue||0).toLocaleString('en-IN')}`;
-      document.getElementById('statWeek').innerHTML     = `<span>₹</span>${Number(d.weekly_revenue||0).toLocaleString('en-IN')}`;
-      document.getElementById('statMonth').innerHTML    = `<span>₹</span>${Number(d.monthly_revenue||0).toLocaleString('en-IN')}`;
+      document.getElementById('s1').textContent = d.today_bookings ?? '0';
+      document.getElementById('s2').innerHTML = `<span>₹</span>${Number(d.today_revenue||0).toLocaleString('en-IN')}`;
+      document.getElementById('s3').innerHTML = `<span>₹</span>${Number(d.weekly_revenue||0).toLocaleString('en-IN')}`;
+      document.getElementById('s4').innerHTML = `<span>₹</span>${Number(d.monthly_revenue||0).toLocaleString('en-IN')}`;
     } catch(e) { console.error(e); }
   }
 
@@ -1012,8 +978,8 @@
     if (dateFrom) p.set('date_from', dateFrom);
     if (dateTo)   p.set('date_to', dateTo);
 
-    document.getElementById('bookingsBody').innerHTML =
-      '<tr class="loading-row"><td colspan="8">Loading…</td></tr>';
+    document.getElementById('bookingsBody').innerHTML  = '<tr class="loading-row"><td colspan="8">Loading…</td></tr>';
+    document.getElementById('mobileCards').innerHTML   = '<div class="loading-cards">Loading…</div>';
 
     try {
       const r = await fetch(`${API_BASE}/admin/bookings?${p}`, { headers: authHdrs() });
@@ -1021,52 +987,71 @@
       const data = await r.json();
       const bookings = data.bookings || data;
       const total = data.total ?? bookings.length;
-      totalPages = data.totalPages ?? 1;
+      totalPages  = data.totalPages ?? 1;
 
       document.getElementById('countBadge').textContent = `${total} booking${total !== 1 ? 's' : ''}`;
-      renderRows(bookings, page);
+      renderTable(bookings, page);
+      renderCards(bookings, page);
       renderPag(page, totalPages, total);
     } catch(e) {
-      document.getElementById('bookingsBody').innerHTML =
-        '<tr class="loading-row"><td colspan="8">Failed to load. Please refresh.</td></tr>';
+      const msg = 'Failed to load. Please refresh.';
+      document.getElementById('bookingsBody').innerHTML = `<tr class="loading-row"><td colspan="8">${msg}</td></tr>`;
+      document.getElementById('mobileCards').innerHTML  = `<div class="loading-cards">${msg}</div>`;
     }
   }
 
-  function renderRows(rows, page) {
+  // Desktop table rows
+  function renderTable(rows, page) {
     const tbody = document.getElementById('bookingsBody');
     if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="8">
-        <div class="empty-state">
-          <div class="e-icon">📭</div>
-          <p>No bookings found matching your filters.</p>
-        </div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">📭</div><p>No bookings found.</p></div></td></tr>`;
       return;
     }
-    const startIdx = (page - 1) * PAGE_SIZE;
+    const si = (page - 1) * PAGE_SIZE;
     tbody.innerHTML = rows.map((b, i) => {
       const st = (b.status || 'pending').toLowerCase();
-      const dateStr = b.booking_date
-        ? new Date(b.booking_date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-        : '—';
-      const createdStr = b.created_at
-        ? new Date(b.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-        : '—';
-      const slotT = b.start_time ? b.start_time.substring(0,5) : '';
-      const slotE = b.end_time   ? b.end_time.substring(0,5)   : '';
-      const slot  = slotT ? (slotE ? `${slotT} – ${slotE}` : slotT) : '—';
-
+      const dateStr = b.booking_date ? fmt(b.booking_date) : '—';
+      const createdStr = b.created_at ? fmt(b.created_at) : '—';
+      const slot = slotStr(b);
       return `<tr>
-        <td class="cell-num">${startIdx + i + 1}</td>
-        <td><div class="customer-cell">
-          <div class="name">${h(b.customer_name||'—')}</div>
-          <div class="email">${h(b.customer_email||'')}</div>
-        </div></td>
+        <td class="cell-num">${si + i + 1}</td>
+        <td><div class="customer-cell"><div class="name">${h(b.customer_name||'—')}</div><div class="email">${h(b.customer_email||'')}</div></div></td>
         <td class="phone-cell">${h(b.customer_phone||'—')}</td>
         <td class="type-cell">${h(b.pooja_name||'—')}</td>
         <td class="date-cell">${dateStr}</td>
-        <td class="date-cell"><div class="time">${slot}</div></td>
-        <td>
-          <div class="status-wrap">
+        <td class="date-cell"><div class="time-text">${slot}</div></td>
+        <td><select class="status-sel s-${st}" data-id="${b.id}" onchange="updateStatus(this)">
+          <option value="pending"   ${st==='pending'   ?'selected':''}>⏳ Pending</option>
+          <option value="confirmed" ${st==='confirmed' ?'selected':''}>✅ Confirmed</option>
+          <option value="completed" ${st==='completed' ?'selected':''}>🔵 Completed</option>
+          <option value="cancelled" ${st==='cancelled' ?'selected':''}>❌ Cancelled</option>
+        </select></td>
+        <td class="date-cell">${createdStr}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Mobile card rows
+  function renderCards(rows, page) {
+    const mc = document.getElementById('mobileCards');
+    if (!rows.length) {
+      mc.innerHTML = `<div class="empty-state"><div class="e-icon">📭</div><p>No bookings found.</p></div>`;
+      return;
+    }
+    const si = (page - 1) * PAGE_SIZE;
+    mc.innerHTML = rows.map((b, i) => {
+      const st = (b.status || 'pending').toLowerCase();
+      const dateStr = b.booking_date ? fmt(b.booking_date) : '—';
+      const slot    = slotStr(b);
+      return `<div class="booking-card">
+        <div class="bc-row">
+          <div style="min-width:0;flex:1">
+            <div class="bc-name">${h(b.customer_name||'—')}</div>
+            <div class="bc-email">${h(b.customer_email||'')}</div>
+            <div class="bc-phone">${h(b.customer_phone||'—')}</div>
+            <span class="bc-type">${h(b.pooja_name||'—')}</span>
+          </div>
+          <div style="flex-shrink:0;padding-top:2px">
             <select class="status-sel s-${st}" data-id="${b.id}" onchange="updateStatus(this)">
               <option value="pending"   ${st==='pending'   ?'selected':''}>⏳ Pending</option>
               <option value="confirmed" ${st==='confirmed' ?'selected':''}>✅ Confirmed</option>
@@ -1074,34 +1059,39 @@
               <option value="cancelled" ${st==='cancelled' ?'selected':''}>❌ Cancelled</option>
             </select>
           </div>
-        </td>
-        <td class="date-cell">${createdStr}</td>
-      </tr>`;
+        </div>
+        <div class="bc-meta">
+          <div class="bc-date">📅 ${dateStr}</div>
+          ${slot !== '—' ? `<div class="bc-date">⏰ ${slot}</div>` : ''}
+        </div>
+      </div>`;
     }).join('');
   }
 
   async function updateStatus(sel) {
     const id = sel.dataset.id;
-    const newStatus = sel.value;
-    const oldCls = [...sel.classList].find(c => c.startsWith('s-') && c !== 's-');
-    sel.className = `status-sel s-${newStatus}`;
+    const newSt = sel.value;
+    const allSels = document.querySelectorAll(`[data-id="${id}"]`);
+    const oldCls = [...sel.classList].find(c => ['s-pending','s-confirmed','s-completed','s-cancelled'].includes(c));
+
+    allSels.forEach(s => { s.className = `status-sel s-${newSt}`; s.value = newSt; });
+
     try {
       const r = await fetch(`${API_BASE}/admin/bookings/${id}/status`, {
         method: 'PUT', headers: authHdrs(),
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newSt })
       });
       if (!r.ok) {
         const err = await r.json();
         toast(err.error || 'Update failed', 'err');
-        sel.className = `status-sel ${oldCls}`;
-        sel.value = oldCls ? oldCls.replace('s-', '') : 'pending';
+        const oldSt = oldCls ? oldCls.replace('s-', '') : 'pending';
+        allSels.forEach(s => { s.className = `status-sel ${oldCls}`; s.value = oldSt; });
         return;
       }
-      toast(`Booking #${id} → ${newStatus}`, 'ok');
+      toast(`Booking #${id} → ${newSt}`, 'ok');
       loadStats();
     } catch {
       toast('Network error', 'err');
-      sel.className = `status-sel ${oldCls}`;
     }
   }
 
@@ -1109,36 +1099,35 @@
     const from = Math.min((page-1)*PAGE_SIZE+1, totalItems);
     const to   = Math.min(page*PAGE_SIZE, totalItems);
     document.getElementById('pagInfo').textContent =
-      totalItems > 0 ? `Showing ${from}–${to} of ${totalItems} bookings` : '0 results';
+      totalItems > 0 ? `${from}–${to} of ${totalItems}` : '0 results';
 
-    let html = `<button class="pag-btn" onclick="loadBookings(${page-1})" ${page<=1?'disabled':''}>← Prev</button>`;
-    const range = 2;
-    for (let p = Math.max(1, page-range); p <= Math.min(total, page+range); p++) {
+    let html = `<button class="pag-btn" onclick="loadBookings(${page-1})" ${page<=1?'disabled':''}>←</button>`;
+    const r = 2;
+    for (let p = Math.max(1, page-r); p <= Math.min(total, page+r); p++) {
       html += `<button class="pag-btn ${p===page?'cur':''}" onclick="loadBookings(${p})">${p}</button>`;
     }
-    html += `<button class="pag-btn" onclick="loadBookings(${page+1})" ${page>=total?'disabled':''}>Next →</button>`;
+    html += `<button class="pag-btn" onclick="loadBookings(${page+1})" ${page>=total?'disabled':''}>→</button>`;
     document.getElementById('pagBtns').innerHTML = html;
   }
 
   function applyFilters() { loadBookings(1); }
   function clearFilters() {
-    document.getElementById('searchInput').value = '';
+    ['searchInput','dateFrom','dateTo'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('statusFilter').value = '';
-    document.getElementById('dateFrom').value = '';
-    document.getElementById('dateTo').value = '';
     loadBookings(1);
   }
   document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
 
-  // ── SECTION SWITCHING ──
-  const sections = ['bookings', 'password'];
+  // ── SECTION SWITCH ──
+  const SECTIONS = ['bookings','password'];
+  const TITLES   = { bookings:['Bookings','All Bookings'], stats:['Revenue','Revenue & Stats'], password:['Change Password','Security'] };
   function showSection(sec) {
-    sections.forEach(s => {
+    closeSidebar();
+    SECTIONS.forEach(s => {
       const el = document.getElementById(`section-${s}`);
       if (el) el.style.display = 'none';
     });
     document.getElementById('statsGrid').style.display = sec === 'password' ? 'none' : 'grid';
-
     const target = document.getElementById(`section-${sec}`);
     if (target) {
       target.style.display = 'block';
@@ -1146,40 +1135,35 @@
       void target.offsetWidth;
       target.classList.add('section-fade');
     }
-
-    const titles = { bookings: ['Bookings','All Bookings'], stats: ['Revenue','Revenue & Stats'], password: ['Change Password','Security'] };
-    const t = titles[sec] || ['Dashboard','Dashboard'];
-    document.getElementById('pageTitle').textContent = t[0];
-    document.getElementById('pageCrumbEnd').textContent = t[1];
-
+    const [t, c] = TITLES[sec] || ['Dashboard','Dashboard'];
+    document.getElementById('pageTitle').textContent = t;
+    document.getElementById('pageCrumb').textContent = c;
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const nav = document.getElementById(`nav-${sec}`);
     if (nav) nav.classList.add('active');
   }
 
-  // ── PASSWORD STRENGTH ──
+  // ── PASSWORD ──
   function checkStrength(val) {
     const fill = document.getElementById('strFill');
     const lbl  = document.getElementById('strLbl');
-    if (!val) { fill.style.width = '0'; lbl.textContent = ''; return; }
+    if (!val) { fill.style.width='0'; lbl.textContent=''; return; }
     let s = 0;
-    if (val.length >= 8)  s++;
-    if (val.length >= 12) s++;
+    if (val.length>=8)  s++;
+    if (val.length>=12) s++;
     if (/[A-Z]/.test(val)) s++;
     if (/[0-9]/.test(val)) s++;
     if (/[^A-Za-z0-9]/.test(val)) s++;
     const lvls = [
-      { w:'20%', c:'#e05c5c', t:'Very weak' },
-      { w:'40%', c:'#e8954c', t:'Weak' },
-      { w:'60%', c:'#e8c84c', t:'Fair' },
-      { w:'80%', c:'#8fd66a', t:'Strong' },
-      { w:'100%',c:'#4caf80', t:'Very strong' },
+      {w:'20%',c:'#e05c5c',t:'Very weak'},
+      {w:'40%',c:'#e8954c',t:'Weak'},
+      {w:'60%',c:'#e8c84c',t:'Fair'},
+      {w:'80%',c:'#8fd66a',t:'Strong'},
+      {w:'100%',c:'#4caf80',t:'Very strong'}
     ];
-    const l = lvls[Math.min(s-1,4)] || lvls[0];
-    fill.style.width = l.w;
-    fill.style.background = l.c;
-    lbl.textContent = l.t;
-    lbl.style.color = l.c;
+    const l = lvls[Math.min(s-1,4)]||lvls[0];
+    fill.style.width=l.w; fill.style.background=l.c;
+    lbl.textContent=l.t; lbl.style.color=l.c;
   }
 
   async function submitChangePw() {
@@ -1189,29 +1173,22 @@
     const errEl = document.getElementById('pwErr');
     const okEl  = document.getElementById('pwOk');
     const btn   = document.getElementById('pwBtn');
-
-    errEl.style.display = 'none';
-    okEl.style.display  = 'none';
-
-    if (!cur || !nw || !conf) { errEl.textContent='All fields are required.'; errEl.style.display='block'; return; }
-    if (nw.length < 8)        { errEl.textContent='New password must be at least 8 characters.'; errEl.style.display='block'; return; }
-    if (nw !== conf)           { errEl.textContent='Passwords do not match.'; errEl.style.display='block'; return; }
-
-    btn.disabled = true; btn.textContent = 'Updating…';
+    errEl.style.display='none'; okEl.style.display='none';
+    if (!cur||!nw||!conf) { errEl.textContent='All fields are required.'; errEl.style.display='block'; return; }
+    if (nw.length<8)      { errEl.textContent='New password must be at least 8 characters.'; errEl.style.display='block'; return; }
+    if (nw!==conf)         { errEl.textContent='Passwords do not match.'; errEl.style.display='block'; return; }
+    btn.disabled=true; btn.textContent='Updating…';
     try {
       const r = await fetch(`${API_BASE}/admin/change-password`, {
-        method: 'PUT', headers: authHdrs(),
+        method:'PUT', headers: authHdrs(),
         body: JSON.stringify({ current_password: cur, new_password: nw })
       });
       const d = await r.json();
-      if (!r.ok) {
-        errEl.textContent = d.error || 'Failed.'; errEl.style.display='block';
-        btn.disabled=false; btn.textContent='Update Password'; return;
-      }
-      ['curPw','newPw','confPw'].forEach(id => document.getElementById(id).value='');
+      if (!r.ok) { errEl.textContent=d.error||'Failed.'; errEl.style.display='block'; btn.disabled=false; btn.textContent='Update Password'; return; }
+      ['curPw','newPw','confPw'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('strFill').style.width='0';
       document.getElementById('strLbl').textContent='';
-      okEl.textContent = '✓ Password updated! Signing you out in 3 seconds…';
+      okEl.textContent='✓ Password updated! Signing you out in 3 seconds…';
       okEl.style.display='block';
       btn.textContent='Update Password';
       setTimeout(logout, 3000);
@@ -1221,7 +1198,16 @@
     }
   }
 
-  // ── UTILS ──
+  // ── HELPERS ──
+  function fmt(d) {
+    try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+    catch { return '—'; }
+  }
+  function slotStr(b) {
+    const s = b.start_time ? b.start_time.substring(0,5) : '';
+    const e = b.end_time   ? b.end_time.substring(0,5)   : '';
+    return s ? (e ? `${s} – ${e}` : s) : '—';
+  }
   function h(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
