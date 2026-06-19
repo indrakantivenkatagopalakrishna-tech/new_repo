@@ -753,7 +753,54 @@ app.put('/admin/bookings/:id/status', authenticateAdmin, async (req, res) => {
   }
 });
 
+// PUT /admin/change-password — change logged-in admin's password
+app.put('/admin/change-password', authenticateAdmin, async (req, res) => {
+  const { current_password, new_password } = req.body;
+  const adminId = req.admin.id;
+
+  if (!current_password || !new_password) {
+    return res.status(400).json({ error: 'Both current and new password are required' });
+  }
+  if (new_password.length < 8) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters' });
+  }
+  if (current_password === new_password) {
+    return res.status(400).json({ error: 'New password must be different from the current password' });
+  }
+
+  try {
+    // Fetch current admin record
+    const result = await db.query('SELECT * FROM admin_users WHERE id = $1', [adminId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Admin account not found' });
+    }
+
+    const admin = result.rows[0];
+
+    // Verify current password is correct
+    const isValid = await bcrypt.compare(current_password, admin.password_hash);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const newHash = await bcrypt.hash(new_password, 12);
+
+    // Update in DB — never return the hash in response
+    await db.query(
+      'UPDATE admin_users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [newHash, adminId]
+    );
+
+    res.json({ message: 'Password changed successfully. Please log in again.' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // GET /admin/revenue/today
+
 app.get('/admin/revenue/today', authenticateAdmin, async (req, res) => {
   try {
     const result = await db.query(

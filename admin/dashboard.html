@@ -391,6 +391,53 @@
       .main { margin-left: 0; }
       .content { padding: 1rem; }
     }
+
+    /* ── CHANGE PASSWORD PANEL ── */
+    #section-password label {
+      display:block; font-size:0.82rem; font-weight:500;
+      color:var(--text-muted); margin-bottom:0.4rem;
+    }
+    #section-password input {
+      width:100%; background:var(--dark3); border:1px solid var(--border);
+      border-radius:8px; padding:0.7rem 0.9rem; font-size:0.92rem;
+      color:var(--text); font-family:'Inter',sans-serif; outline:none;
+      transition:border-color 0.2s;
+    }
+    #section-password input:focus { border-color:var(--gold); }
+    .form-group { margin-bottom:1.2rem; }
+    .strength-bar {
+      height:4px; background:var(--dark4); border-radius:99px;
+      margin-top:0.5rem; overflow:hidden;
+    }
+    .strength-fill {
+      height:100%; width:0; border-radius:99px;
+      transition:width 0.35s, background 0.35s;
+    }
+    .strength-label {
+      font-size:0.72rem; margin-top:0.3rem;
+      color:var(--text-muted); min-height:1em;
+    }
+    .btn-change-pw {
+      width:100%; padding:0.8rem;
+      background:linear-gradient(135deg,#c9a84c,#e8c96a,#c9a84c);
+      background-size:200% auto;
+      border:none; border-radius:10px;
+      font-size:0.92rem; font-weight:600; color:#0d0d0d;
+      cursor:pointer; font-family:'Inter',sans-serif;
+      transition:background-position 0.4s, box-shadow 0.2s;
+      box-shadow:0 4px 18px rgba(201,168,76,0.25);
+      margin-top:0.5rem;
+    }
+    .btn-change-pw:hover { background-position:right center; box-shadow:0 6px 26px rgba(201,168,76,0.4); }
+    .btn-change-pw:disabled { opacity:0.55; cursor:not-allowed; }
+    .pw-msg {
+      padding:0.75rem 1rem; border-radius:8px; font-size:0.84rem;
+      margin-bottom:1.2rem;
+      background:rgba(224,92,92,0.1); border:1px solid rgba(224,92,92,0.3); color:var(--error);
+    }
+    .pw-msg.success {
+      background:rgba(76,175,128,0.1); border-color:rgba(76,175,128,0.3); color:var(--success);
+    }
   </style>
 </head>
 <body>
@@ -410,6 +457,10 @@
     </a>
     <a class="nav-item" id="nav-stats" onclick="showSection('stats')">
       <span class="icon">📊</span> Revenue Stats
+    </a>
+    <div class="nav-section-label">Account</div>
+    <a class="nav-item" id="nav-password" onclick="showSection('password')">
+      <span class="icon">🔑</span> Change Password
     </a>
   </nav>
 
@@ -457,7 +508,7 @@
     </div>
 
     <!-- BOOKINGS TABLE -->
-    <div class="section-card">
+    <div class="section-card" id="section-bookings">
       <div class="section-header">
         <h2>Consultation Bookings</h2>
         <span id="totalCount" style="font-size:0.8rem;color:var(--text-muted)">Loading...</span>
@@ -507,6 +558,33 @@
       <div class="pagination">
         <span id="paginationInfo">—</span>
         <div class="page-btns" id="pageButtons"></div>
+      </div>
+    </div>
+
+    <!-- CHANGE PASSWORD PANEL -->
+    <div class="section-card" id="section-password" style="display:none;max-width:480px">
+      <div class="section-header">
+        <h2>Change Password</h2>
+      </div>
+      <div style="padding:2rem">
+        <div class="pw-msg" id="pwError" style="display:none"></div>
+        <div class="pw-msg success" id="pwSuccess" style="display:none"></div>
+
+        <div class="form-group">
+          <label for="currentPw">Current Password</label>
+          <input type="password" id="currentPw" placeholder="Enter current password" autocomplete="current-password" />
+        </div>
+        <div class="form-group">
+          <label for="newPw">New Password</label>
+          <input type="password" id="newPw" placeholder="Min 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)" />
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-label" id="strengthLabel"></div>
+        </div>
+        <div class="form-group">
+          <label for="confirmPw">Confirm New Password</label>
+          <input type="password" id="confirmPw" placeholder="Repeat new password" autocomplete="new-password" />
+        </div>
+        <button class="btn-change-pw" id="changePwBtn" onclick="submitChangePassword()">Update Password</button>
       </div>
     </div>
 
@@ -698,8 +776,106 @@
   document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
 
   function showSection(sec) {
+    // Hide all sections
+    document.getElementById('section-bookings').style.display = 'none';
+    document.getElementById('section-password').style.display = 'none';
+    document.getElementById('statsGrid').style.display = sec === 'password' ? 'none' : 'grid';
+
+    // Show selected
+    if (sec === 'password') {
+      document.getElementById('section-password').style.display = 'block';
+      document.getElementById('pageTitle').textContent = 'Change Password';
+      document.getElementById('pageBreadcrumb').textContent = 'Update your admin login password';
+    } else {
+      document.getElementById('section-bookings').style.display = 'block';
+      document.getElementById('pageTitle').textContent = 'Bookings';
+      document.getElementById('pageBreadcrumb').textContent = 'All consultation bookings';
+    }
+
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(`nav-${sec}`).classList.add('active');
+  }
+
+  // ── CHANGE PASSWORD ──
+  function checkStrength(val) {
+    const fill = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+    if (!val) { fill.style.width = '0'; label.textContent = ''; return; }
+    let score = 0;
+    if (val.length >= 8)  score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { w: '20%', color: '#e05c5c', text: 'Very weak' },
+      { w: '40%', color: '#e8954c', text: 'Weak' },
+      { w: '60%', color: '#e8c84c', text: 'Fair' },
+      { w: '80%', color: '#8fd66a', text: 'Strong' },
+      { w: '100%', color: '#4caf80', text: 'Very strong' },
+    ];
+    const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+    fill.style.width = lvl.w;
+    fill.style.background = lvl.color;
+    label.textContent = lvl.text;
+    label.style.color = lvl.color;
+  }
+
+  async function submitChangePassword() {
+    const currentPw = document.getElementById('currentPw').value;
+    const newPw     = document.getElementById('newPw').value;
+    const confirmPw = document.getElementById('confirmPw').value;
+    const errEl     = document.getElementById('pwError');
+    const okEl      = document.getElementById('pwSuccess');
+    const btn       = document.getElementById('changePwBtn');
+
+    errEl.style.display = 'none';
+    okEl.style.display  = 'none';
+
+    if (!currentPw || !newPw || !confirmPw) {
+      errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return;
+    }
+    if (newPw.length < 8) {
+      errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = 'block'; return;
+    }
+    if (newPw !== confirmPw) {
+      errEl.textContent = 'New passwords do not match.'; errEl.style.display = 'block'; return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Updating…';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/change-password`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ current_password: currentPw, new_password: newPw })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Failed to change password.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Update Password';
+        return;
+      }
+
+      // Success — clear fields, show message, auto-logout in 3s
+      document.getElementById('currentPw').value = '';
+      document.getElementById('newPw').value = '';
+      document.getElementById('confirmPw').value = '';
+      document.getElementById('strengthFill').style.width = '0';
+      document.getElementById('strengthLabel').textContent = '';
+      okEl.textContent = 'Password updated! You will be logged out in 3 seconds…';
+      okEl.style.display = 'block';
+      btn.textContent = 'Update Password';
+
+      setTimeout(() => logout(), 3000);
+    } catch (e) {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Update Password';
+    }
   }
 
   function escHtml(str) {
