@@ -5,11 +5,22 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
+const { rateLimit } = require('express-rate-limit');
 const db = require('./db');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Rate limiter for admin login — max 5 attempts per 15 minutes per IP
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again after 15 minutes.' },
+  skipSuccessfulRequests: true, // Only count failed attempts
+});
 
 // Strip /api prefix if present (CloudFront routes /api/* to this Lambda)
 app.use((req, res, next) => {
@@ -546,16 +557,21 @@ app.get('/booking/:id', async (req, res) => {
 // ADMIN APIS (Protected by authentication)
 // ==========================================
 
-// POST /admin/login
-app.post('/admin/login', async (req, res) => {
-  const { username, password } = req.body;
+// POST /admin/login — accepts email OR username, rate-limited
+app.post('/admin/login', adminLoginLimiter, async (req, res) => {
+  const { email, username, password } = req.body;
+  const identifier = email || username; // support both email and username fields
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
+  if (!identifier || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
-    const result = await db.query('SELECT * FROM admin_users WHERE username = $1', [username]);
+    // Look up by email column first, fallback to username column
+    const result = await db.query(
+      'SELECT * FROM admin_users WHERE email = $1 OR username = $1',
+      [identifier]
+    );
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -567,7 +583,7 @@ app.post('/admin/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: admin.id, username: admin.username, role: admin.role },
+      { id: admin.id, username: admin.username || admin.email, role: admin.role },
       jwtSecret,
       { expiresIn: '24h' }
     );
@@ -577,7 +593,7 @@ app.post('/admin/login', async (req, res) => {
       token,
       admin: {
         id: admin.id,
-        username: admin.username,
+        email: admin.email || admin.username,
         role: admin.role
       }
     });
@@ -629,39 +645,110 @@ app.get('/admin/dashboard', authenticateAdmin, async (req, res) => {
   }
 });
 
-// GET /admin/bookings
+// GET /admin/bookings — with search, status filter, date range, pagination
 app.get('/admin/bookings', authenticateAdmin, async (req, res) => {
-  const { query, date } = req.query;
+  const { query, date, date_from, date_to, status, page = 1, limit = 20 } = req.query;
+  const offset = (parseInt(page) - 1) * parseInt(limit);
 
   try {
-    let sql = `
-      SELECT b.*, s.start_time, s.end_time, s.date as slot_date, p.amount 
-      FROM bookings b
-      LEFT JOIN slots s ON b.slot_id = s.id
-      LEFT JOIN payments p ON b.id = p.booking_id
-      WHERE 1=1
-    `;
+    let conditions = ['1=1'];
     const params = [];
     let paramIndex = 1;
 
+    // Single date filter
     if (date) {
-      sql += ` AND b.booking_date = $${paramIndex}`;
+      conditions.push(`b.booking_date = $${paramIndex++}`);
       params.push(date);
-      paramIndex++;
     }
 
+    // Date range filter
+    if (date_from) {
+      conditions.push(`b.booking_date >= $${paramIndex++}`);
+      params.push(date_from);
+    }
+    if (date_to) {
+      conditions.push(`b.booking_date <= $${paramIndex++}`);
+      params.push(date_to);
+    }
+
+    // Status filter
+    const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+    if (status && validStatuses.includes(status)) {
+      conditions.push(`b.status = $${paramIndex++}`);
+      params.push(status);
+    }
+
+    // Search filter (name, email, phone)
     if (query) {
-      sql += ` AND (b.customer_name ILIKE $${paramIndex} OR b.customer_phone ILIKE $${paramIndex} OR b.customer_email ILIKE $${paramIndex} OR b.pooja_name ILIKE $${paramIndex})`;
+      conditions.push(`(b.customer_name ILIKE $${paramIndex} OR b.customer_phone ILIKE $${paramIndex} OR b.customer_email ILIKE $${paramIndex} OR b.pooja_name ILIKE $${paramIndex})`);
       params.push(`%${query}%`);
       paramIndex++;
     }
 
-    sql += ` ORDER BY b.booking_date DESC, s.start_time DESC`;
+    const whereClause = conditions.join(' AND ');
+
+    // Count query for pagination
+    const countResult = await db.query(
+      `SELECT COUNT(*) FROM bookings b WHERE ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    // Data query with pagination
+    const sql = `
+      SELECT b.*, s.start_time, s.end_time, s.date as slot_date, p.amount
+      FROM bookings b
+      LEFT JOIN slots s ON b.slot_id = s.id
+      LEFT JOIN payments p ON b.id = p.booking_id
+      WHERE ${whereClause}
+      ORDER BY b.created_at DESC
+      LIMIT $${paramIndex++} OFFSET $${paramIndex++}
+    `;
+    params.push(parseInt(limit));
+    params.push(offset);
 
     const result = await db.query(sql, params);
-    res.json(result.rows);
+    res.json({
+      bookings: result.rows,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / parseInt(limit))
+    });
   } catch (error) {
     console.error('Error retrieving admin bookings:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// PUT /admin/bookings/:id/status — update booking status
+app.put('/admin/bookings/:id/status', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+  if (!status || !validStatuses.includes(status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+  }
+
+  // Validate id is numeric
+  if (!/^\d+$/.test(id)) {
+    return res.status(400).json({ error: 'Invalid booking ID' });
+  }
+
+  try {
+    const result = await db.query(
+      `UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, status, customer_name, customer_email`,
+      [status, parseInt(id)]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    res.json({ message: 'Booking status updated successfully', booking: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating booking status:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

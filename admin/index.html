@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Indrakanti Venkatagopalakrishna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --dark: #0d0d0d;
+      --dark2: #141414;
+      --dark3: #1e1e1e;
+      --border: rgba(201,168,76,0.2);
+      --text: #f0ece0;
+      --text-muted: #8a8070;
+      --error: #e05c5c;
+      --success: #4caf80;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 70%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .brand-symbol {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 0 12px rgba(201,168,76,0.4));
+    }
+    .brand h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+    .brand p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.05) inset;
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .card .subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.03em;
+    }
+    input {
+      width: 100%;
+      background: var(--dark3);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    }
+    input::placeholder { color: var(--text-muted); }
+
+    .error-msg {
+      display: none;
+      background: rgba(224,92,92,0.12);
+      border: 1px solid rgba(224,92,92,0.3);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.84rem;
+      color: var(--error);
+      margin-bottom: 1.25rem;
+    }
+    .error-msg.show { display: block; }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, #c9a84c, #e8c96a, #c9a84c);
+      background-size: 200% auto;
+      border: none;
+      border-radius: 10px;
+      padding: 0.875rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #0d0d0d;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.03em;
+      transition: background-position 0.4s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+    }
+    .btn-login:hover {
+      background-position: right center;
+      box-shadow: 0 6px 28px rgba(201,168,76,0.4);
+    }
+    .btn-login:active { transform: scale(0.98); }
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #0d0d0d;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="brand">
+      <div class="brand-symbol">🕉</div>
+      <h1>Indrakanti Venkatagopalakrishna</h1>
+      <p>Secure Admin Portal</p>
+    </div>
+
+    <div class="card">
+      <h2>Welcome back</h2>
+      <p class="subtitle">Sign in to manage consultations &amp; bookings</p>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="admin@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+      </form>
+    </div>
+
+    <a href="/" class="back-link">← Back to website</a>
+  </div>
+
+  <script>
+    // Redirect if already logged in
+    const existingToken = sessionStorage.getItem('admin_token');
+    if (existingToken) {
+      window.location.href = '/admin/dashboard.html';
+    }
+
+    const API_BASE = '/api';
+
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const loginBtn = document.getElementById('loginBtn');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+    }
+    function hideError() {
+      errorMsg.classList.remove('show');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showError('Please enter your email and password.');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="spinner"></span>Signing in…';
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.error || 'Login failed. Please try again.');
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Sign In';
+          return;
+        }
+
+        // Store token and redirect to dashboard
+        sessionStorage.setItem('admin_token', data.token);
+        sessionStorage.setItem('admin_email', data.admin?.email || email);
+        window.location.href = '/admin/dashboard.html';
+      } catch (err) {
+        showError('Network error. Please check your connection.');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Indrakanti Venkatagopalakrishna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --dark: #0b0b0b;
+      --dark2: #131313;
+      --dark3: #1a1a1a;
+      --dark4: #222222;
+      --border: rgba(255,255,255,0.07);
+      --border-gold: rgba(201,168,76,0.2);
+      --text: #f0ece0;
+      --text-muted: #7a7060;
+      --text-dim: #a09880;
+      --error: #e05c5c;
+      --success: #4caf80;
+      --warning: #e8a84c;
+      --info: #4c9ae8;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--dark2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand .om { font-size: 1.6rem; display: block; margin-bottom: 0.35rem; }
+    .sidebar-brand h2 {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1.3;
+    }
+    .sidebar-brand p { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; }
+    .nav-section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding: 0.5rem 0.5rem 0.25rem;
+      margin-top: 0.75rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.87rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: all 0.15s;
+      text-decoration: none;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--dark3); color: var(--text); }
+    .nav-item.active { background: rgba(201,168,76,0.1); color: var(--gold); }
+    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 1rem 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .admin-badge {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding: 0.5rem 0.5rem;
+      margin-bottom: 0.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(224,92,92,0.2);
+      background: rgba(224,92,92,0.06);
+      color: var(--error);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .btn-logout:hover { background: rgba(224,92,92,0.12); border-color: rgba(224,92,92,0.4); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: var(--dark2);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 600; }
+    .topbar .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    .content { padding: 2rem; flex: 1; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--border-gold); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .stat-card:hover::before { opacity: 1; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .stat-icon { position: absolute; top: 1rem; right: 1.25rem; font-size: 1.5rem; opacity: 0.25; }
+
+    /* ── BOOKINGS TABLE SECTION ── */
+    .section-card {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .section-header h2 { font-size: 1rem; font-weight: 600; }
+
+    /* ── FILTERS ── */
+    .filters {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--dark3);
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+    .search-wrap .icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; }
+    input.search-input, select.filter-select, input.date-input {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input.search-input {
+      padding-left: 2.2rem;
+      width: 100%;
+    }
+    input.search-input:focus, select.filter-select:focus, input.date-input:focus {
+      border-color: var(--gold);
+    }
+    input.date-input { width: 150px; }
+    select.filter-select { cursor: pointer; min-width: 140px; }
+    select.filter-select option { background: var(--dark3); }
+
+    .btn-filter {
+      padding: 0.55rem 1rem;
+      background: var(--gold);
+      border: none;
+      border-radius: 8px;
+      color: #0d0d0d;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.15s;
+    }
+    .btn-filter:hover { opacity: 0.85; }
+    .btn-clear {
+      padding: 0.55rem 0.85rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .btn-clear:hover { border-color: var(--text-dim); color: var(--text); }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    thead th {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--dark3);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    tbody tr:hover { background: var(--dark3); }
+    tbody tr:last-child { border-bottom: none; }
+    td {
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .td-name { font-weight: 500; }
+    .td-email { color: var(--text-dim); font-size: 0.8rem; }
+    .td-phone { font-family: monospace; font-size: 0.85rem; }
+    .td-type { color: var(--gold-light); font-size: 0.8rem; }
+    .td-date { white-space: nowrap; font-size: 0.82rem; }
+
+    /* ── STATUS BADGE + SELECT ── */
+    .status-select {
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      appearance: none;
+      -webkit-appearance: none;
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      padding-right: 1.5rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.4)'/%3E%3C/svg%3E");
+      transition: all 0.15s;
+    }
+    .status-select.pending   { background-color: rgba(201,168,76,0.12); border-color: rgba(201,168,76,0.3); color: var(--gold); }
+    .status-select.confirmed { background-color: rgba(76,175,128,0.12); border-color: rgba(76,175,128,0.3); color: var(--success); }
+    .status-select.completed { background-color: rgba(76,154,232,0.12); border-color: rgba(76,154,232,0.3); color: var(--info); }
+    .status-select.cancelled { background-color: rgba(224,92,92,0.12); border-color: rgba(224,92,92,0.3); color: var(--error); }
+    .status-select option { background: #1a1a1a; color: #f0ece0; }
+
+    /* ── EMPTY / LOADING STATE ── */
+    .table-empty {
+      text-align: center;
+      padding: 3.5rem 2rem;
+      color: var(--text-muted);
+    }
+    .table-empty .icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; opacity: 0.4; }
+    .table-empty p { font-size: 0.9rem; }
+
+    .loading-row td {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .page-btns { display: flex; gap: 0.4rem; }
+    .page-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+    .page-btn.active { background: var(--gold); border-color: var(--gold); color: #0d0d0d; font-weight: 600; }
+    .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.87rem;
+      font-weight: 500;
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 340px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: rgba(76,175,128,0.15); border: 1px solid rgba(76,175,128,0.35); color: var(--success); }
+    .toast.error   { background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.35); color: var(--error); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .content { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="om">🕉</span>
+    <h2>Indrakanti Venkatagopalakrishna</h2>
+    <p>Admin Portal</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" id="nav-bookings" onclick="showSection('bookings')">
+      <span class="icon">📋</span> Bookings
+    </a>
+    <a class="nav-item" id="nav-stats" onclick="showSection('stats')">
+      <span class="icon">📊</span> Revenue Stats
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-badge" id="adminEmail">Loading...</div>
+    <button class="btn-logout" onclick="logout()">
+      <span>↩</span> Logout
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1 id="pageTitle">Bookings</h1>
+      <div class="breadcrumb" id="pageBreadcrumb">All consultation bookings</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- STATS ROW -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label">Today's Bookings</div>
+        <div class="stat-value" id="statTodayBookings">—</div>
+        <span class="stat-icon">📅</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-value" id="statTodayRev">—</div>
+        <span class="stat-icon">💰</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Weekly Revenue</div>
+        <div class="stat-value" id="statWeekRev">—</div>
+        <span class="stat-icon">📈</span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Monthly Revenue</div>
+        <div class="stat-value" id="statMonthRev">—</div>
+        <span class="stat-icon">🗓</span>
+      </div>
+    </div>
+
+    <!-- BOOKINGS TABLE -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>Consultation Bookings</h2>
+        <span id="totalCount" style="font-size:0.8rem;color:var(--text-muted)">Loading...</span>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters">
+        <div class="search-wrap">
+          <span class="icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search name, email or phone…" />
+        </div>
+        <select class="filter-select" id="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <input type="date" class="date-input" id="dateFrom" title="From date" />
+        <input type="date" class="date-input" id="dateTo" title="To date" />
+        <button class="btn-filter" onclick="applyFilters()">Apply</button>
+        <button class="btn-clear" onclick="clearFilters()">Clear</button>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table id="bookingsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Consultation Type</th>
+              <th>Preferred Date</th>
+              <th>Time Slot</th>
+              <th>Status</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody">
+            <tr class="loading-row"><td colspan="8">Loading bookings…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <span id="paginationInfo">—</span>
+        <div class="page-btns" id="pageButtons"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = '/api';
+  let currentPage = 1;
+  const PAGE_SIZE = 20;
+  let totalPages = 1;
+
+  // ── AUTH ──
+  const token = sessionStorage.getItem('admin_token');
+  if (!token) { window.location.href = '/admin/index.html'; }
+
+  const adminEmail = sessionStorage.getItem('admin_email') || 'Admin';
+  document.getElementById('adminEmail').textContent = adminEmail;
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
+
+  function logout() {
+    sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_email');
+    window.location.href = '/admin/index.html';
+  }
+
+  // ── TOAST ──
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ── STATS ──
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: authHeaders() });
+      if (res.status === 401 || res.status === 403) { logout(); return; }
+      const d = await res.json();
+      document.getElementById('statTodayBookings').textContent = d.today_bookings ?? '0';
+      document.getElementById('statTodayRev').textContent = d.today_revenue != null ? `₹${Number(d.today_revenue).toLocaleString('en-IN')}` : '₹0';
+      document.getElementById('statWeekRev').textContent = d.weekly_revenue != null ? `₹${Number(d.weekly_revenue).toLocaleString('en-IN')}` : '₹0';
+      document.getElementById('statMonthRev').textContent = d.monthly_revenue != null ? `₹${Number(d.monthly_revenue).toLocaleString('en-IN')}` : '₹0';
+    } catch (e) {
+      console.error('Stats load error', e);
+    }
+  }
+
+  // ── BOOKINGS ──
+  async function loadBookings(page = 1) {
+    currentPage = page;
+    const search = document.getElementById('searchInput').value.trim();
+    const status = document.getElementById('statusFilter').value;
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo   = document.getElementById('dateTo').value;
+
+    const params = new URLSearchParams({ page, limit: PAGE_SIZE });
+    if (search)   params.set('query', search);
+    if (status)   params.set('status', status);
+    if (dateFrom) params.set('date_from', dateFrom);
+    if (dateTo)   params.set('date_to', dateTo);
+
+    document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="8">Loading…</td></tr>';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/bookings?${params}`, { headers: authHeaders() });
+      if (res.status === 401 || res.status === 403) { logout(); return; }
+      const data = await res.json();
+
+      const bookings = data.bookings || data; // handle both paginated and plain array
+      const total = data.total ?? bookings.length;
+      totalPages = data.totalPages ?? 1;
+
+      document.getElementById('totalCount').textContent = `${total} booking${total !== 1 ? 's' : ''}`;
+      renderTable(bookings, page);
+      renderPagination(page, totalPages, total);
+    } catch (e) {
+      document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="8">Failed to load bookings.</td></tr>';
+    }
+  }
+
+  function renderTable(bookings, page) {
+    const tbody = document.getElementById('bookingsBody');
+    if (!bookings.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><span class="icon">📭</span><p>No bookings found matching your filters.</p></div></td></tr>`;
+      return;
+    }
+
+    const startIdx = (page - 1) * PAGE_SIZE;
+    tbody.innerHTML = bookings.map((b, i) => {
+      const statusClass = (b.status || 'pending').toLowerCase().replace(/[^a-z]/g, '');
+      const dateStr = b.booking_date ? new Date(b.booking_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+      const submittedStr = b.created_at ? new Date(b.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+      const slotStart = b.start_time ? b.start_time.substring(0,5) : '—';
+      const slotEnd   = b.end_time   ? b.end_time.substring(0,5)   : '';
+      const slotStr   = slotEnd ? `${slotStart} – ${slotEnd}` : slotStart;
+
+      return `<tr>
+        <td style="color:var(--text-muted);font-size:0.8rem">${startIdx + i + 1}</td>
+        <td>
+          <div class="td-name">${escHtml(b.customer_name || '—')}</div>
+          <div class="td-email">${escHtml(b.customer_email || '')}</div>
+        </td>
+        <td class="td-phone">${escHtml(b.customer_phone || '—')}</td>
+        <td class="td-type">${escHtml(b.pooja_name || '—')}</td>
+        <td class="td-date">${dateStr}</td>
+        <td class="td-date" style="font-size:0.8rem">${slotStr}</td>
+        <td>
+          <select class="status-select ${statusClass}" 
+                  data-id="${b.id}" 
+                  onchange="updateStatus(this)"
+                  title="Change status">
+            <option value="pending"   ${b.status==='pending'   ? 'selected':''}>Pending</option>
+            <option value="confirmed" ${b.status==='confirmed' ? 'selected':''}>Confirmed</option>
+            <option value="completed" ${b.status==='completed' ? 'selected':''}>Completed</option>
+            <option value="cancelled" ${b.status==='cancelled' ? 'selected':''}>Cancelled</option>
+          </select>
+        </td>
+        <td class="td-date">${submittedStr}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function updateStatus(selectEl) {
+    const id = selectEl.dataset.id;
+    const status = selectEl.value;
+    const oldClass = selectEl.className.replace('status-select ', '').trim().split(' ').find(c => ['pending','confirmed','completed','cancelled'].includes(c));
+
+    // Optimistically update style
+    selectEl.className = `status-select ${status}`;
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/bookings/${id}/status`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.error || 'Failed to update status', 'error');
+        selectEl.className = `status-select ${oldClass}`;
+        selectEl.value = oldClass;
+        return;
+      }
+      showToast(`Booking #${id} marked as ${status}`, 'success');
+      loadStats(); // refresh revenue stats
+    } catch (e) {
+      showToast('Network error updating status', 'error');
+      selectEl.className = `status-select ${oldClass}`;
+      selectEl.value = oldClass;
+    }
+  }
+
+  function renderPagination(page, total, totalItems) {
+    const info = document.getElementById('paginationInfo');
+    const btns = document.getElementById('pageButtons');
+    const start = Math.min((page - 1) * PAGE_SIZE + 1, totalItems);
+    const end = Math.min(page * PAGE_SIZE, totalItems);
+    info.textContent = totalItems > 0 ? `Showing ${start}–${end} of ${totalItems}` : '';
+
+    let html = `<button class="page-btn" onclick="loadBookings(${page-1})" ${page<=1?'disabled':''}>← Prev</button>`;
+
+    // Show up to 5 page buttons around current
+    const range = 2;
+    for (let p = Math.max(1, page-range); p <= Math.min(total, page+range); p++) {
+      html += `<button class="page-btn ${p===page?'active':''}" onclick="loadBookings(${p})">${p}</button>`;
+    }
+    html += `<button class="page-btn" onclick="loadBookings(${page+1})" ${page>=total?'disabled':''}>Next →</button>`;
+    btns.innerHTML = html;
+  }
+
+  function applyFilters() { loadBookings(1); }
+  function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+    loadBookings(1);
+  }
+
+  // Enter key triggers search
+  document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
+
+  function showSection(sec) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`nav-${sec}`).classList.add('active');
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── INIT ──
+  loadStats();
+  loadBookings(1);
+</script>
+</body>
+</html>
