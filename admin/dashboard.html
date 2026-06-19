@@ -1015,7 +1015,7 @@
       const slot = slotStr(b);
       return `<tr>
         <td class="cell-num">${si + i + 1}</td>
-        <td><div class="customer-cell"><div class="name">${h(b.customer_name||'—')}</div><div class="email">${h(b.customer_email||'')}</div></div></td>
+        <td><div class="customer-cell"><div class="name">${h(b.customer_name||'—')}</div><div class="email">${h(b.customer_email||'')}</div>${b.amount ? `<div style="font-size: 0.68rem; color: var(--green); margin-top: 4px; font-weight: 600;">✓ Paid ₹${parseInt(b.amount)}</div>` : ''}</div></td>
         <td class="phone-cell">${h(b.customer_phone||'—')}</td>
         <td class="type-cell">${h(b.pooja_name||'—')}</td>
         <td class="date-cell">${dateStr}</td>
@@ -1050,6 +1050,7 @@
             <div class="bc-email">${h(b.customer_email||'')}</div>
             <div class="bc-phone">${h(b.customer_phone||'—')}</div>
             <span class="bc-type">${h(b.pooja_name||'—')}</span>
+            ${b.amount ? `<span style="display:inline-block; font-size: 0.72rem; color: var(--green); font-weight: 600; margin-left: 8px; margin-top: 6px;">✓ Paid ₹${parseInt(b.amount)}</span>` : ''}
           </div>
           <div style="flex-shrink:0;padding-top:2px">
             <select class="status-sel s-${st}" data-id="${b.id}" onchange="updateStatus(this)">
